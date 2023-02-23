@@ -6,11 +6,13 @@ import (
 )
 
 type Handler struct {
-	service service.Service
+	service *service.Service
 }
 
 func New(service *service.Service) *Handler {
-	return &Handler{}
+	return &Handler{
+		service: service,
+	}
 }
 
 func (h *Handler) InitRoutes() *mux.Router {
@@ -18,8 +20,8 @@ func (h *Handler) InitRoutes() *mux.Router {
 
 	//Authorization
 	auth := r.PathPrefix("/auth").Subrouter()
-	auth.HandleFunc("/sign-in", h.SignIn).Methods("POST")
 	auth.HandleFunc("/sign-up", h.SignUp).Methods("POST")
+	auth.HandleFunc("/sign-in", h.SignIn).Methods("POST")
 
 	return r
 }

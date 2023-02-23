@@ -9,7 +9,7 @@ CREATE TABLE users (
 
 CREATE TABLE tokens (
     user_id int references users(id),
-    token varchar(512) not null unique,
+    token varchar(128) not null unique,
     expires_at date not null
 );
 
