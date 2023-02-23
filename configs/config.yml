@@ -3,7 +3,5 @@ port: "8000"
 db:
   host: "localhost"
   port: "5432"
-  user: "vbnm251"
-  password: "vbnm251"
   dbname: "sayrsa"
   sslmode: "disable"
