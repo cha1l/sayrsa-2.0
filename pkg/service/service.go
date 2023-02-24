@@ -7,6 +7,7 @@ import (
 
 type Authorization interface {
 	CreateUser(u models.User) (string, error)
+	GetUsersToken(u models.SignInInput) (string, error)
 }
 
 type Service struct {

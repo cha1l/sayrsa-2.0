@@ -43,3 +43,19 @@ func (s *AuthRepo) CreateUser(u models.User, token string, tokenT time.Time) err
 
 	return tx.Commit()
 }
+
+func (s *AuthRepo) GetUsersToken(u models.SignInInput) (models.Token, error) {
+	var token models.Token
+
+	query := fmt.Sprintf(`SELECT * FROM %s WHERE user_id=(SELECT id FROM %s WHERE username=$1 AND password_hash=$2)`,
+		tokensTable, usersTable)
+
+	err := s.db.Get(&token, query, u.Username, u.Password)
+	return token, err
+}
+
+func (s *AuthRepo) UpdateUsersToken(token models.Token) error {
+	query := fmt.Sprintf(`UPDATE %s SET token=$1, expires_at=$2 WHERE id=$3`, tokensTable)
+	_, err := s.db.Exec(query, token.Token, token.Expires_at, token.Id)
+	return err
+}

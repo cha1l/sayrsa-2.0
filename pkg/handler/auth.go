@@ -39,5 +39,30 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
+	var input models.SignInInput
+	w.Header().Set("Content-Type", "application/json")
 
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		NewErrorResponce(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	token, err := h.service.Authorization.GetUsersToken(input)
+	if err != nil {
+		NewErrorResponce(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ans, err := json.Marshal(map[string]interface{}{
+		"token": token,
+	})
+	if err != nil {
+		NewErrorResponce(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(ans)
+
+	log.Printf("User %s signed in", input.Username)
 }

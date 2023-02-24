@@ -8,6 +8,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE tokens (
+    id serial primary key,
     user_id int references users(id),
     token varchar(128) not null unique,
     expires_at date not null
