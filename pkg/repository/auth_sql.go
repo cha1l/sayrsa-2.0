@@ -59,3 +59,13 @@ func (s *AuthRepo) UpdateUsersToken(token models.Token) error {
 	_, err := s.db.Exec(query, token.Token, token.Expires_at, token.Id)
 	return err
 }
+
+func (s *AuthRepo) GetUserIdByToken(token string) (int, error) {
+	var id int
+
+	query := fmt.Sprintf(`SELECT user_id FROM %s WHERE token=$1`, tokensTable)
+	row := s.db.QueryRow(query, token)
+	err := row.Scan(&id)
+
+	return id, err
+}

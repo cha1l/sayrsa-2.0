@@ -11,6 +11,7 @@ type Authorization interface {
 	CreateUser(u models.User, token string, tokenT time.Time) error
 	GetUsersToken(u models.SignInInput) (models.Token, error)
 	UpdateUsersToken(token models.Token) error
+	GetUserIdByToken(token string) (int, error)
 }
 
 type Repository struct {

@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/cha1l/sayrsa-2.0/pkg/service"
 	"github.com/gorilla/mux"
 )
@@ -20,8 +22,13 @@ func (h *Handler) InitRoutes() *mux.Router {
 
 	//Authorization
 	auth := r.PathPrefix("/auth").Subrouter()
-	auth.HandleFunc("/sign-up", h.SignUp).Methods("POST")
-	auth.HandleFunc("/sign-in", h.SignIn).Methods("POST")
+	auth.HandleFunc("/sign-up", h.SignUp).Methods(http.MethodPost)
+	auth.HandleFunc("/sign-in", h.SignIn).Methods(http.MethodPost)
+
+	//Main api
+	api := r.PathPrefix("/api").Subrouter()
+	api.Use(h.AuthorizationMiddleware)
+	api.HandleFunc("/create-conv", h.CreateConversation).Methods(http.MethodPost)
 
 	return r
 }

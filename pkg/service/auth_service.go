@@ -51,6 +51,10 @@ func (s *AuthService) GetUsersToken(u models.SignInInput) (string, error) {
 	return token.Token, err
 }
 
+func (s *AuthService) GetUserIdByToken(token string) (int, error) {
+	return s.repo.GetUserIdByToken(token)
+}
+
 func GenerateSecureToken(length int) string {
 	b := make([]byte, length)
 	if _, err := rand.Read(b); err != nil {
