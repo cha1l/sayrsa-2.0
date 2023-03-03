@@ -14,12 +14,17 @@ type Authorization interface {
 	GetUserIdByToken(token string) (int, error)
 }
 
+type Conversations interface {
+}
+
 type Repository struct {
 	Authorization
+	Conversations
 }
 
 func New(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthRepo(db),
+		Conversations: NewConversationsRepo(db),
 	}
 }

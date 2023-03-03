@@ -11,12 +11,17 @@ type Authorization interface {
 	GetUserIdByToken(token string) (int, error)
 }
 
+type Conversations interface {
+}
+
 type Service struct {
 	Authorization
+	Conversations
 }
 
 func New(repo *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repo.Authorization),
+		Conversations: NewConversationService(repo.Conversations),
 	}
 }

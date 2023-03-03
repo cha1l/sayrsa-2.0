@@ -13,13 +13,13 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		NewErrorResponce(w, http.StatusInternalServerError, err.Error())
+		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	token, err := h.service.Authorization.CreateUser(input)
 	if err != nil {
-		NewErrorResponce(w, http.StatusInternalServerError, err.Error())
+		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -27,7 +27,7 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 		"token": token,
 	})
 	if err != nil {
-		NewErrorResponce(w, http.StatusInternalServerError, err.Error())
+		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -43,13 +43,13 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		NewErrorResponce(w, http.StatusBadRequest, err.Error())
+		NewErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	token, err := h.service.Authorization.GetUsersToken(input)
 	if err != nil {
-		NewErrorResponce(w, http.StatusInternalServerError, err.Error())
+		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -57,7 +57,7 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 		"token": token,
 	})
 	if err != nil {
-		NewErrorResponce(w, http.StatusInternalServerError, err.Error())
+		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
