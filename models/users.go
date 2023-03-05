@@ -10,3 +10,8 @@ type User struct {
 	PublicKey  string `json:"public key"`
 	LastOnline time.Time
 }
+
+type PublicKey struct {
+	Username  string `json:"username" db:"username"`
+	PublicKey string `json:"public_key" db:"public_key"`
+}

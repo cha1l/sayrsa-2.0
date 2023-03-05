@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"encoding/json"
 	models "github.com/cha1l/sayrsa-2.0/models"
+	"github.com/mitchellh/mapstructure"
 	"log"
 	"net/http"
 
@@ -24,6 +24,9 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	username := GetParams(r.Context())
+	h.clients[username] = NewClient(conn)
+	defer delete(h.clients, username)
 	defer func(conn *websocket.Conn) {
 		err := conn.Close()
 		if err != nil {
@@ -32,15 +35,13 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}(conn)
 
-	userId := GetParams(r.Context())
-	h.clients[conn] = NewClient(userId, true)
-	defer delete(h.clients, conn)
+	log.Printf("Client %s connected", username)
 
 	for {
 		var input models.StandardInput
 		err := conn.ReadJSON(&input)
 		if err != nil {
-			WsErrorResponse(conn, err.Error())
+			log.Printf("client %s disconnect", username)
 			break
 		}
 
@@ -48,38 +49,62 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 			var conv models.CreateConversionsInput
 
 			//algorithm???  data -> conv
-			js, err := json.Marshal(input.Data)
+			err := mapstructure.Decode(input.Data, &conv)
 			if err != nil {
 				WsErrorResponse(conn, err.Error())
-				break
+				continue
 			}
-			if err != json.Unmarshal(js, &conv) {
+
+			log.Printf("User %s wants to create a conversation with users %s", username, conv.Usernames)
+
+			convID, publicKeys, err := h.service.Conversations.CreateConversation(username, conv)
+			if err != nil {
 				WsErrorResponse(conn, err.Error())
-				break
+				continue
 			}
 
-			log.Printf("User %d wants to create a conversation with users %d", userId, conv.UsersID)
+			data := map[string]interface{}{
+				"event":       "new_conv",
+				"conv_id":     convID,
+				"public_keys": publicKeys,
+			}
 
-			//todo: call service for creating conversions
+			go h.SendMessage(data, conv.Usernames...)
 
 		} else if input.Action == sendMessageAction {
 			var msg models.SendMessageInput
 
-			js, err := json.Marshal(input.Data)
+			err := mapstructure.Decode(input.Data, &msg)
 			if err != nil {
 				WsErrorResponse(conn, err.Error())
-				break
-			}
-			if err != json.Unmarshal(js, &msg) {
-				WsErrorResponse(conn, err.Error())
-				break
+				continue
 			}
 
-			log.Printf("User %d wants to send message", userId)
+			log.Printf("User %s wants to send message", username)
 
 		} else {
 			WsErrorResponse(conn, "invalid action")
 			continue
 		}
+
 	}
+}
+
+func (h *Handler) SendMessage(data map[string]interface{}, users ...string) {
+	if len(users) != 0 {
+		for _, username := range users {
+			go func(username string) {
+				if val, ok := h.clients[username]; ok {
+					if err := val.connection.WriteJSON(data); err != nil {
+						WsErrorResponse(val.connection, err.Error())
+						return
+					}
+					return
+				}
+				log.Printf("client %s is not connected", username)
+			}(username)
+		}
+		return
+	}
+	log.Println("empty users list")
 }

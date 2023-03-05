@@ -1,6 +1,6 @@
 DROP TABLE messages;
 
-DROP TABLE conversation_membres;
+DROP TABLE conversation_members;
 
 DROP TABLE conversations;
 

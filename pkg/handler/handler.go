@@ -15,25 +15,23 @@ const (
 
 type Handler struct {
 	service *service.Service
-	clients map[*websocket.Conn]Client
+	clients map[string]Client
 }
 
 func New(service *service.Service) *Handler {
 	return &Handler{
 		service: service,
-		clients: make(map[*websocket.Conn]Client),
+		clients: make(map[string]Client),
 	}
 }
 
 type Client struct {
-	id          int
-	isConnected bool
+	connection *websocket.Conn
 }
 
-func NewClient(id int, isConnected bool) Client {
+func NewClient(conn *websocket.Conn) Client {
 	return Client{
-		id:          id,
-		isConnected: isConnected,
+		connection: conn,
 	}
 }
 

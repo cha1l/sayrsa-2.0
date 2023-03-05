@@ -30,14 +30,20 @@ func (s *AuthRepo) CreateUser(u models.User, token string, tokenT time.Time) err
 	VALUES ($1, $2, $3, $4, $5) RETURNING id`, usersTable)
 	row := tx.QueryRow(createUserQuery, u.Username, u.Bio, u.LastOnline, u.Password, u.PublicKey)
 	if err := row.Scan(&id); err != nil {
-		tx.Rollback()
+		err0 := tx.Rollback()
+		if err0 != nil {
+			return err0
+		}
 		return err
 	}
 
 	createTokenQuery := fmt.Sprintf(`INSERT INTO %s (user_id, token, expires_at) VALUES ($1, $2, $3)`, tokensTable)
 	_, err = tx.Exec(createTokenQuery, id, token, tokenT)
 	if err != nil {
-		tx.Rollback()
+		err0 := tx.Rollback()
+		if err0 != nil {
+			return err0
+		}
 		return err
 	}
 
@@ -60,12 +66,20 @@ func (s *AuthRepo) UpdateUsersToken(token models.Token) error {
 	return err
 }
 
-func (s *AuthRepo) GetUserIdByToken(token string) (int, error) {
+func (s *AuthRepo) GetUsernameByToken(token string) (string, error) {
+	var username string
 	var id int
 
 	query := fmt.Sprintf(`SELECT user_id FROM %s WHERE token=$1`, tokensTable)
 	row := s.db.QueryRow(query, token)
 	err := row.Scan(&id)
+	if err != nil {
+		return "", err
+	}
 
-	return id, err
+	queryId := fmt.Sprintf(`SELECT username FROM %s WHERE id=$1`, usersTable)
+	row = s.db.QueryRow(queryId, id)
+	err = row.Scan(&username)
+
+	return username, err
 }

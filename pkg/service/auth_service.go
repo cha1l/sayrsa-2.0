@@ -14,7 +14,7 @@ import (
 
 const (
 	salt        string        = "ojdflkghjfdlkj"
-	tokenLenght int           = 64
+	tokenLength int           = 64
 	tokenT      time.Duration = 7 * 24 * time.Hour
 )
 
@@ -30,7 +30,7 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 
 func (s *AuthService) CreateUser(u models.User) (string, error) {
 	u.Password = GeneratePasswordHash(u.Password)
-	token := GenerateSecureToken(tokenLenght)
+	token := GenerateSecureToken(tokenLength)
 	tokenT := time.Now().Add(tokenT)
 
 	return token, s.repo.CreateUser(u, token, tokenT)
@@ -44,15 +44,15 @@ func (s *AuthService) GetUsersToken(u models.SignInInput) (string, error) {
 	}
 	if time.Now().After(token.Expires_at) {
 		log.Println("token is not valid: creating new token ...")
-		token.Token = GenerateSecureToken(tokenLenght)
+		token.Token = GenerateSecureToken(tokenLength)
 		token.Expires_at = time.Now().Add(tokenT)
 		err = s.repo.UpdateUsersToken(token)
 	}
 	return token.Token, err
 }
 
-func (s *AuthService) GetUserIdByToken(token string) (int, error) {
-	return s.repo.GetUserIdByToken(token)
+func (s *AuthService) GetUsernameByToken(token string) (string, error) {
+	return s.repo.GetUsernameByToken(token)
 }
 
 func GenerateSecureToken(length int) string {

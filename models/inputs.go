@@ -6,12 +6,12 @@ type SignInInput struct {
 }
 
 type CreateConversionsInput struct {
-	Title   string `json:"title"`
-	UsersID []int  `json:"users_id"`
+	Title     string   `mapstructure:"title"`
+	Usernames []string `mapstructure:"usernames"`
 }
 
 type SendMessageInput struct {
-	Text string `json:"text"`
+	Text string `mapstructure:"text"`
 }
 
 type StandardInput struct {

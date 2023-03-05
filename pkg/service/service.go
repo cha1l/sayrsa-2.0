@@ -8,10 +8,12 @@ import (
 type Authorization interface {
 	CreateUser(u models.User) (string, error)
 	GetUsersToken(u models.SignInInput) (string, error)
-	GetUserIdByToken(token string) (int, error)
+	GetUsernameByToken(token string) (string, error)
 }
 
 type Conversations interface {
+	CreateConversation(username string, input models.CreateConversionsInput) (int, []models.PublicKey, error)
+	UpdateToken(username string) error
 }
 
 type Service struct {
@@ -22,6 +24,6 @@ type Service struct {
 func New(repo *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repo.Authorization),
-		Conversations: NewConversationService(repo.Conversations),
+		Conversations: NewConversationService(repo),
 	}
 }

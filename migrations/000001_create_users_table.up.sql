@@ -19,9 +19,10 @@ CREATE TABLE conversations (
     title varchar(255) not null
 );
 
-CREATE TABLE conversation_membres (
+CREATE TABLE conversation_members (
     conv_id int references conversations(id),
-    user_id int references users(id)
+    user_username varchar(255) references users(username),
+    unique (conv_id, user_username)
 );
 
 CREATE TABLE messages (
