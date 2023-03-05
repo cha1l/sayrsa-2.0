@@ -41,7 +41,7 @@ func (s *ConversationService) UpdateToken(username string) error {
 		return err
 	}
 
-	token.Expires_at = token.Expires_at.Add(UpdateTokenTime)
+	token.ExpiresAt = token.ExpiresAt.Add(UpdateTokenTime)
 
 	return s.repo.UpdateUserToken(token)
 }

@@ -62,24 +62,25 @@ func (s *AuthRepo) GetUsersToken(u models.SignInInput) (models.Token, error) {
 
 func (s *AuthRepo) UpdateUsersToken(token models.Token) error {
 	query := fmt.Sprintf(`UPDATE %s SET token=$1, expires_at=$2 WHERE id=$3`, tokensTable)
-	_, err := s.db.Exec(query, token.Token, token.Expires_at, token.Id)
+	_, err := s.db.Exec(query, token.Token, token.ExpiresAt, token.Id)
 	return err
 }
 
-func (s *AuthRepo) GetUsernameByToken(token string) (string, error) {
+func (s *AuthRepo) GetToken(token string) (models.Token, error) {
+	var cToken models.Token
+
+	query := fmt.Sprintf(`SELECT user_id, expires_at FROM %s WHERE token=$1`, tokensTable)
+	err := s.db.Get(&cToken, query, token)
+
+	return cToken, err
+}
+
+func (s *AuthRepo) GetUsernameByToken(token models.Token) (string, error) {
 	var username string
-	var id int
 
-	query := fmt.Sprintf(`SELECT user_id FROM %s WHERE token=$1`, tokensTable)
-	row := s.db.QueryRow(query, token)
-	err := row.Scan(&id)
-	if err != nil {
-		return "", err
-	}
-
-	queryId := fmt.Sprintf(`SELECT username FROM %s WHERE id=$1`, usersTable)
-	row = s.db.QueryRow(queryId, id)
-	err = row.Scan(&username)
+	query := fmt.Sprintf(`SELECT username FROM %s WHERE id=$1`, usersTable)
+	row := s.db.QueryRowx(query, token.UserId)
+	err := row.Scan(&username)
 
 	return username, err
 }

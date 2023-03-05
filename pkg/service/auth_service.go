@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -42,17 +43,26 @@ func (s *AuthService) GetUsersToken(u models.SignInInput) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if time.Now().After(token.Expires_at) {
+	if time.Now().After(token.ExpiresAt) {
 		log.Println("token is not valid: creating new token ...")
 		token.Token = GenerateSecureToken(tokenLength)
-		token.Expires_at = time.Now().Add(tokenT)
+		token.ExpiresAt = time.Now().Add(tokenT)
 		err = s.repo.UpdateUsersToken(token)
 	}
 	return token.Token, err
 }
 
 func (s *AuthService) GetUsernameByToken(token string) (string, error) {
-	return s.repo.GetUsernameByToken(token)
+	cToken, err := s.repo.GetToken(token)
+	if err != nil {
+		return "", err
+	}
+	if cToken.ExpiresAt.Before(time.Now()) {
+		return "", errors.New("invalid token, register one more time")
+	}
+
+	return s.repo.GetUsernameByToken(cToken)
+
 }
 
 func GenerateSecureToken(length int) string {

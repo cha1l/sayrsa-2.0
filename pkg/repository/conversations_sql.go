@@ -82,7 +82,7 @@ func (r *ConversationsRepo) CreateConversation(input models.CreateConversionsInp
 func (r *ConversationsRepo) GetUserToken(username string) (models.Token, error) {
 	var token models.Token
 
-	query := fmt.Sprintf(`SELECT * FROM %s WHERE user_id=(SELECT id FROM %s WHERE username=$1)`, tokensTable, usersTable)
+	query := fmt.Sprintf(`SELECT id, expires_at FROM %s WHERE user_id=(SELECT id FROM %s WHERE username=$1)`, tokensTable, usersTable)
 	err := r.db.Get(&token, query, username)
 
 	return token, err
@@ -90,6 +90,6 @@ func (r *ConversationsRepo) GetUserToken(username string) (models.Token, error) 
 
 func (r *ConversationsRepo) UpdateUserToken(token models.Token) error {
 	query := fmt.Sprintf(`UPDATE %s SET expires_at=$1 WHERE id=$2`, tokensTable)
-	_, err := r.db.Exec(query, token.Expires_at, token.Id)
+	_, err := r.db.Exec(query, token.ExpiresAt, token.Id)
 	return err
 }
