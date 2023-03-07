@@ -11,8 +11,8 @@ type Authorization interface {
 	CreateUser(u *models.User, token *string, tokenT time.Time) error
 	GetUsersToken(username string, password string) (*models.Token, error)
 	UpdateUsersToken(token *models.Token) error
-	GetToken(token string) (models.Token, error)
-	GetUsernameByToken(token models.Token) (string, error)
+	GetToken(token string) (*models.Token, error)
+	GetUsernameByToken(token *models.Token) (string, error)
 }
 
 type Conversations interface {
@@ -20,7 +20,7 @@ type Conversations interface {
 	GetUsersPublicKeys(usernames ...string) ([]models.PublicKey, error)
 	GetUserToken(username string) (models.Token, error)
 	UpdateUserToken(token models.Token) error
-	//GetConversationInfo(convID int) (models.Conversation, error)
+	GetConversationInfo(convID int) (*models.Conversation, error)
 }
 
 type Repository struct {

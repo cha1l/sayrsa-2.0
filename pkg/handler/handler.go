@@ -47,8 +47,8 @@ func (h *Handler) InitRoutes() *mux.Router {
 	//Main api handler
 	api := r.PathPrefix("/api").Subrouter()
 	api.Use(h.AuthorizationMiddleware)
-	api.HandleFunc("/{username:[a-z]+}", h.GetPublicKeyHandler).Methods(http.MethodGet)
-	//api.HandleFunc("/{id:[0-9]+", h.GetConversationInfoHandler).Methods(http.MethodGet)
+	api.HandleFunc("/public-key/{username}", h.GetPublicKeyHandler).Methods(http.MethodGet)
+	api.HandleFunc("/conv_info/{id:[0-9]+}", h.GetConversationInfoHandler).Methods(http.MethodGet)
 	//WebSockets handler
 	api.HandleFunc("/", h.wsHandler)
 

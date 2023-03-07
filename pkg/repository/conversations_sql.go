@@ -95,7 +95,35 @@ func (r *ConversationsRepo) UpdateUserToken(token models.Token) error {
 }
 
 type SqlResultConv struct {
-	Id     int    `db:"id"`
-	Title  string `db:"title"`
-	Member string `db:"members"`
+	Id        int    `db:"id"`
+	Title     string `db:"title"`
+	Member    string `db:"members"`
+	PublicKey string `db:"public_key"`
+}
+
+func (r *ConversationsRepo) GetConversationInfo(convID int) (*models.Conversation, error) {
+	query := fmt.Sprintf(`SELECT c.id, c.title, m.user_username as members, u.public_key  FROM %s as c 
+    	INNER JOIN %s as m ON m.conv_id=c.id 
+    	INNER JOIN %s as u ON m.user_username=u.username WHERE c.id=$1`,
+		conversationsTable, conversationMembersTable, usersTable)
+
+	rows, err := r.db.Queryx(query, convID)
+	if err != nil {
+		return nil, err
+	}
+
+	var title string
+	publicKeys := make([]models.PublicKey, 0)
+
+	for rows.Next() {
+		var res SqlResultConv
+		if err := rows.StructScan(&res); err != nil {
+			return nil, err
+		}
+		title = res.Title
+		publicKey := models.NewPublicKey(res.Member, res.PublicKey)
+		publicKeys = append(publicKeys, publicKey)
+	}
+
+	return models.NewConversation(convID, title, publicKeys), nil
 }

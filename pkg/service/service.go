@@ -15,7 +15,7 @@ type Conversations interface {
 	CreateConversation(username string, title string, members []string) (int, []models.PublicKey, error)
 	UpdateToken(username string) error
 	GetPublicKey(username string) (string, error)
-	GetConversationInfo(convID int) (models.Conversation, error)
+	GetConversationInfo(convID int) (*models.Conversation, error)
 }
 
 type Service struct {

@@ -21,9 +21,12 @@ func NewConversationService(repo repository.Conversations) *ConversationService 
 	}
 }
 
-func (s *ConversationService) GetConversationInfo(convID int) (models.Conversation, error) {
-	//call repository
-	return models.Conversation{}, nil
+func (s *ConversationService) GetConversationInfo(convID int) (*models.Conversation, error) {
+	info, err := s.repo.GetConversationInfo(convID)
+	if err != nil {
+		return nil, err
+	}
+	return info, nil
 }
 
 func (s *ConversationService) CreateConversation(username string, title string, members []string) (int, []models.PublicKey, error) {

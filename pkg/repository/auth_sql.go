@@ -66,16 +66,16 @@ func (s *AuthRepo) UpdateUsersToken(token *models.Token) error {
 	return err
 }
 
-func (s *AuthRepo) GetToken(token string) (models.Token, error) {
+func (s *AuthRepo) GetToken(token string) (*models.Token, error) {
 	var cToken models.Token
 
 	query := fmt.Sprintf(`SELECT user_id, expires_at FROM %s WHERE token=$1`, tokensTable)
 	err := s.db.Get(&cToken, query, token)
 
-	return cToken, err
+	return &cToken, err
 }
 
-func (s *AuthRepo) GetUsernameByToken(token models.Token) (string, error) {
+func (s *AuthRepo) GetUsernameByToken(token *models.Token) (string, error) {
 	var username string
 
 	query := fmt.Sprintf(`SELECT username FROM %s WHERE id=$1`, usersTable)

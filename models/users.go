@@ -15,3 +15,7 @@ type PublicKey struct {
 	Username  string `json:"username" db:"username"`
 	PublicKey string `json:"public_key" db:"public_key"`
 }
+
+func NewPublicKey(username string, publicKey string) PublicKey {
+	return PublicKey{Username: username, PublicKey: publicKey}
+}

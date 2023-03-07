@@ -1,11 +1,10 @@
 package handler
 
 import (
+	"github.com/gorilla/websocket"
 	"github.com/mitchellh/mapstructure"
 	"log"
 	"net/http"
-
-	"github.com/gorilla/websocket"
 )
 
 type CreateConversionsInput struct {
