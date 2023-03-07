@@ -1,13 +1,17 @@
 package handler
 
 import (
-	models "github.com/cha1l/sayrsa-2.0/models"
 	"github.com/mitchellh/mapstructure"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/websocket"
 )
+
+type CreateConversionsInput struct {
+	Title     string   `mapstructure:"title"`
+	Usernames []string `mapstructure:"members"`
+}
 
 var upgrade = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -26,7 +30,7 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 
 	username := GetParams(r.Context())
 	h.clients[username] = NewClient(conn)
-	defer delete(h.clients, username)
+
 	defer func(conn *websocket.Conn) {
 		err := conn.Close()
 		if err != nil {
@@ -34,11 +38,17 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}(conn)
+	defer delete(h.clients, username)
+
+	type StandardInput struct {
+		Action string                 `json:"action"`
+		Data   map[string]interface{} `json:"data"`
+	}
 
 	log.Printf("Client %s connected", username)
 
 	for {
-		var input models.StandardInput
+		var input StandardInput
 		err := conn.ReadJSON(&input)
 		if err != nil {
 			log.Printf("client %s disconnect", username)
@@ -46,7 +56,7 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if input.Action == createConversationAction {
-			var conv models.CreateConversionsInput
+			var conv CreateConversionsInput
 
 			//algorithm???  data -> conv
 			err := mapstructure.Decode(input.Data, &conv)
@@ -57,37 +67,30 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 
 			log.Printf("User %s wants to create a conversation with users %s", username, conv.Usernames)
 
-			convID, publicKeys, err := h.service.Conversations.CreateConversation(username, conv)
+			convID, publicKeys, err := h.service.Conversations.CreateConversation(username, conv.Title, conv.Usernames)
 			if err != nil {
 				WsErrorResponse(conn, err.Error())
 				continue
 			}
 
 			data := map[string]interface{}{
-				"event":       "new_conv",
-				"conv_id":     convID,
-				"public_keys": publicKeys,
+				"event": "new_conv",
+				"data": map[string]interface{}{
+					"conv_id":     convID,
+					"public_keys": publicKeys,
+				},
 			}
 
 			go h.SendMessage(data, conv.Usernames...)
 
 		} else if input.Action == sendMessageAction {
-			var msg models.SendMessageInput
-
-			err := mapstructure.Decode(input.Data, &msg)
-			if err != nil {
-				WsErrorResponse(conn, err.Error())
-				continue
-			}
-
-			log.Printf("User %s wants to send message", username)
 
 		} else {
 			WsErrorResponse(conn, "invalid action")
 			continue
 		}
-
 	}
+
 }
 
 func (h *Handler) SendMessage(data map[string]interface{}, users ...string) {

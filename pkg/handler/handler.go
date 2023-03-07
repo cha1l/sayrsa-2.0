@@ -11,6 +11,7 @@ import (
 const (
 	createConversationAction = "create_conv"
 	sendMessageAction        = "send_message"
+	getPubKeyAction          = "get_pubKey"
 )
 
 type Handler struct {
@@ -43,9 +44,12 @@ func (h *Handler) InitRoutes() *mux.Router {
 	auth.HandleFunc("/sign-up", h.SignUp).Methods(http.MethodPost)
 	auth.HandleFunc("/sign-in", h.SignIn).Methods(http.MethodPost)
 
-	//WebSockets handler
+	//Main api handler
 	api := r.PathPrefix("/api").Subrouter()
 	api.Use(h.AuthorizationMiddleware)
+	api.HandleFunc("/{username:[a-z]+}", h.GetPublicKeyHandler).Methods(http.MethodGet)
+	//api.HandleFunc("/{id:[0-9]+", h.GetConversationInfoHandler).Methods(http.MethodGet)
+	//WebSockets handler
 	api.HandleFunc("/", h.wsHandler)
 
 	return r

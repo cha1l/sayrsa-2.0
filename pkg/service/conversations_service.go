@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"github.com/cha1l/sayrsa-2.0/models"
 	"github.com/cha1l/sayrsa-2.0/pkg/repository"
 	"time"
@@ -20,14 +21,19 @@ func NewConversationService(repo repository.Conversations) *ConversationService 
 	}
 }
 
-func (s *ConversationService) CreateConversation(username string, input models.CreateConversionsInput) (int, []models.PublicKey, error) {
-	input.Usernames = append(input.Usernames, username)
+func (s *ConversationService) GetConversationInfo(convID int) (models.Conversation, error) {
+	//call repository
+	return models.Conversation{}, nil
+}
 
-	convID, err := s.repo.CreateConversation(input)
+func (s *ConversationService) CreateConversation(username string, title string, members []string) (int, []models.PublicKey, error) {
+	members = append(members, username)
+
+	convID, err := s.repo.CreateConversation(title, members)
 	if err != nil {
 		return 0, nil, err
 	}
-	publicKeys, err := s.repo.GetUsersPublicKeys(input.Usernames)
+	publicKeys, err := s.repo.GetUsersPublicKeys(members...)
 	if err != nil {
 		return 0, nil, err
 	}
@@ -44,4 +50,13 @@ func (s *ConversationService) UpdateToken(username string) error {
 	token.ExpiresAt = token.ExpiresAt.Add(UpdateTokenTime)
 
 	return s.repo.UpdateUserToken(token)
+}
+
+func (s *ConversationService) GetPublicKey(username string) (string, error) {
+	publicKeys, err := s.repo.GetUsersPublicKeys(username)
+	if len(publicKeys) == 1 {
+		publicKey := publicKeys[0]
+		return publicKey.PublicKey, err
+	}
+	return "", errors.New("wrong length of slice")
 }

@@ -16,7 +16,7 @@ func NewConversationsRepo(db *sqlx.DB) *ConversationsRepo {
 	return &ConversationsRepo{db: db}
 }
 
-func (r *ConversationsRepo) GetUsersPublicKeys(usernames []string) ([]models.PublicKey, error) {
+func (r *ConversationsRepo) GetUsersPublicKeys(usernames ...string) ([]models.PublicKey, error) {
 	args := make([]interface{}, 0)
 	searchIndexes := make([]string, 0)
 	for i, _ := range usernames {
@@ -36,7 +36,7 @@ func (r *ConversationsRepo) GetUsersPublicKeys(usernames []string) ([]models.Pub
 	return publicKeys, nil
 }
 
-func (r *ConversationsRepo) CreateConversation(input models.CreateConversionsInput) (int, error) {
+func (r *ConversationsRepo) CreateConversation(title string, members []string) (int, error) {
 	var convID int
 
 	tx, err := r.db.Beginx()
@@ -45,7 +45,7 @@ func (r *ConversationsRepo) CreateConversation(input models.CreateConversionsInp
 	}
 
 	createConvQuery := fmt.Sprintf(`INSERT INTO %s (title) VALUES ($1) RETURNING id`, conversationsTable)
-	row := tx.QueryRow(createConvQuery, input.Title)
+	row := tx.QueryRow(createConvQuery, title)
 	if err := row.Scan(&convID); err != nil {
 		if err0 := tx.Rollback(); err0 != nil {
 			return 0, err0
@@ -57,7 +57,7 @@ func (r *ConversationsRepo) CreateConversation(input models.CreateConversionsInp
 	args := make([]interface{}, 0)
 	cnt := 1
 
-	for _, val := range input.Usernames {
+	for _, val := range members {
 		args = append(args, convID)
 		args = append(args, val)
 
@@ -92,4 +92,10 @@ func (r *ConversationsRepo) UpdateUserToken(token models.Token) error {
 	query := fmt.Sprintf(`UPDATE %s SET expires_at=$1 WHERE id=$2`, tokensTable)
 	_, err := r.db.Exec(query, token.ExpiresAt, token.Id)
 	return err
+}
+
+type SqlResultConv struct {
+	Id     int    `db:"id"`
+	Title  string `db:"title"`
+	Member string `db:"members"`
 }

@@ -8,18 +8,19 @@ import (
 )
 
 type Authorization interface {
-	CreateUser(u models.User, token string, tokenT time.Time) error
-	GetUsersToken(u models.SignInInput) (models.Token, error)
-	UpdateUsersToken(token models.Token) error
+	CreateUser(u *models.User, token *string, tokenT time.Time) error
+	GetUsersToken(username string, password string) (*models.Token, error)
+	UpdateUsersToken(token *models.Token) error
 	GetToken(token string) (models.Token, error)
 	GetUsernameByToken(token models.Token) (string, error)
 }
 
 type Conversations interface {
-	CreateConversation(input models.CreateConversionsInput) (int, error)
-	GetUsersPublicKeys(usernames []string) ([]models.PublicKey, error)
+	CreateConversation(title string, members []string) (int, error)
+	GetUsersPublicKeys(usernames ...string) ([]models.PublicKey, error)
 	GetUserToken(username string) (models.Token, error)
 	UpdateUserToken(token models.Token) error
+	//GetConversationInfo(convID int) (models.Conversation, error)
 }
 
 type Repository struct {

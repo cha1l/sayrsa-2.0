@@ -9,7 +9,7 @@ import (
 )
 
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
-	var input models.User
+	input := &models.User{}
 	w.Header().Set("Content-Type", "application/json")
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
@@ -32,14 +32,23 @@ func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write(ans)
+	_, err = w.Write(ans)
+	if err != nil {
+		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	log.Printf("Registation succsed: token created for %s\n", input.Username)
 
 }
 
+type SignInInput struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
-	var input models.SignInInput
+	var input SignInInput
 	w.Header().Set("Content-Type", "application/json")
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
@@ -47,7 +56,7 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.service.Authorization.GetUsersToken(input)
+	token, err := h.service.Authorization.GetUsersToken(input.Username, input.Password)
 	if err != nil {
 		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -62,7 +71,11 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write(ans)
+	_, err = w.Write(ans)
+	if err != nil {
+		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	log.Printf("User %s signed in", input.Username)
 }

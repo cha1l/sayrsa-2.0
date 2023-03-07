@@ -23,7 +23,7 @@ func (h *Handler) AuthorizationMiddleware(next http.Handler) http.Handler {
 		reqToken = splitToken[1]
 		username, err := h.service.Authorization.GetUsernameByToken(reqToken)
 		if err != nil {
-			NewErrorResponse(w, http.StatusInternalServerError, err.Error())
+			NewErrorResponse(w, http.StatusUnauthorized, err.Error())
 			return
 		}
 
