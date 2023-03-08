@@ -6,8 +6,8 @@ import (
 )
 
 type Authorization interface {
-	CreateUser(u *models.User) (*string, error)
-	GetUsersToken(username string, password string) (*string, error)
+	CreateUser(u models.User) (string, error)
+	GetUsersToken(username string, password string) (string, error)
 	GetUsernameByToken(token string) (string, error)
 }
 
@@ -18,14 +18,20 @@ type Conversations interface {
 	GetConversationInfo(convID int) (*models.Conversation, error)
 }
 
+type Messages interface {
+	SendMessage(username string, message *models.Message) error
+}
+
 type Service struct {
 	Authorization
 	Conversations
+	Messages
 }
 
 func New(repo *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repo.Authorization),
-		Conversations: NewConversationService(repo),
+		Conversations: NewConversationService(repo.Conversations),
+		Messages:      NewMessagesService(repo.Messages),
 	}
 }

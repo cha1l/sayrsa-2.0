@@ -1,6 +1,5 @@
 CREATE TABLE users (
-    id serial primary key,
-    username varchar(255) not null unique,
+    username varchar(255) not null unique primary key ,
     bio text,
     last_online timestamp,
     password_hash varchar(512) not null,
@@ -9,7 +8,7 @@ CREATE TABLE users (
 
 CREATE TABLE tokens (
     id serial primary key,
-    user_id int references users(id),
+    user_username  varchar(255) references users(username),
     token varchar(128) not null unique,
     expires_at date not null
 );
@@ -26,9 +25,20 @@ CREATE TABLE conversation_members (
 );
 
 CREATE TABLE messages (
-    msg text not null,
-    sender_id int references users(id),
+    id serial primary key,
+    sender_username varchar(255) references users(username),
     conv_id int references conversations(id),
-    send_date date,
-    send_time time
+    send_date timestamp
+);
+
+CREATE TABLE conversation_messages (
+  id serial primary key,
+  conv_id int references conversations(id),
+  message_id int references messages(id)
+);
+
+CREATE TABLE message_text (
+  conv_message_id int references conversation_messages(id),
+  text varchar(5000) not null,
+  for_user varchar(255) references users(username)
 );

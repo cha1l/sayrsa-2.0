@@ -8,11 +8,11 @@ import (
 )
 
 type Authorization interface {
-	CreateUser(u *models.User, token *string, tokenT time.Time) error
-	GetUsersToken(username string, password string) (*models.Token, error)
-	UpdateUsersToken(token *models.Token) error
-	GetToken(token string) (*models.Token, error)
-	GetUsernameByToken(token *models.Token) (string, error)
+	CreateUser(u models.User, token string, tokenT time.Time) error
+	GetUsersToken(username string, password string) (models.Token, error)
+	UpdateUsersToken(token models.Token) error
+	GetToken(token string) (models.Token, error)
+	//GetUsernameByToken(token models.Token) (string, error)
 }
 
 type Conversations interface {
@@ -23,14 +23,21 @@ type Conversations interface {
 	GetConversationInfo(convID int) (*models.Conversation, error)
 }
 
+type Messages interface {
+	GetMessages(convID int, offset int, amount int) ([]models.Message, error)
+	SendMessage(message *models.Message) error
+}
+
 type Repository struct {
 	Authorization
 	Conversations
+	Messages
 }
 
 func New(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthRepo(db),
 		Conversations: NewConversationsRepo(db),
+		Messages:      NewMessagesRepo(db),
 	}
 }

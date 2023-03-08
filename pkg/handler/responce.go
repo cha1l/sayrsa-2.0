@@ -22,6 +22,7 @@ func NewErrorResponse(w http.ResponseWriter, code int, msg string) {
 func WsErrorResponse(conn *websocket.Conn, msg string) {
 	log.Println(msg)
 	if err := conn.WriteJSON(map[string]interface{}{
+		"event":  "error",
 		"status": msg,
 	}); err != nil {
 		return

@@ -11,7 +11,6 @@ import (
 const (
 	createConversationAction = "create_conv"
 	sendMessageAction        = "send_message"
-	getPubKeyAction          = "get_pubKey"
 )
 
 type Handler struct {

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/cha1l/sayrsa-2.0/models"
 	"github.com/gorilla/websocket"
 	"github.com/mitchellh/mapstructure"
 	"log"
@@ -80,9 +81,29 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 				},
 			}
 
-			go h.SendMessage(data, conv.Usernames...)
+			go h.SendInfo(data, conv.Usernames...)
 
 		} else if input.Action == sendMessageAction {
+			var message models.Message
+
+			if err := mapstructure.Decode(input.Data, &message); err != nil {
+				WsErrorResponse(conn, err.Error())
+				continue
+			}
+
+			if err := h.service.Messages.SendMessage(username, &message); err != nil {
+				WsErrorResponse(conn, err.Error())
+				continue
+			}
+
+			for key, value := range message.Text {
+				go func(message models.Message, text string, user string) {
+					log.Printf("User %s send message to user %s", username, user)
+					data := GenerateMessage(text, message)
+					h.SendInfo(data, user)
+				}(message, value, key)
+
+			}
 
 		} else {
 			WsErrorResponse(conn, "invalid action")
@@ -92,7 +113,7 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *Handler) SendMessage(data map[string]interface{}, users ...string) {
+func (h *Handler) SendInfo(data map[string]interface{}, users ...string) {
 	if len(users) != 0 {
 		for _, username := range users {
 			go func(username string) {
@@ -109,4 +130,18 @@ func (h *Handler) SendMessage(data map[string]interface{}, users ...string) {
 		return
 	}
 	log.Println("empty users list")
+}
+
+func GenerateMessage(text string, message models.Message) map[string]interface{} {
+	data := map[string]interface{}{
+		"event": "new_message",
+		"data": map[string]interface{}{
+			"conv_id":   message.ConversationID,
+			"from":      message.Sender,
+			"send_date": message.SendDate,
+			"text":      text,
+		},
+	}
+
+	return data
 }

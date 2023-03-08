@@ -82,7 +82,7 @@ func (r *ConversationsRepo) CreateConversation(title string, members []string) (
 func (r *ConversationsRepo) GetUserToken(username string) (models.Token, error) {
 	var token models.Token
 
-	query := fmt.Sprintf(`SELECT id, expires_at FROM %s WHERE user_id=(SELECT id FROM %s WHERE username=$1)`, tokensTable, usersTable)
+	query := fmt.Sprintf(`SELECT id, expires_at FROM %s WHERE user_username=$1`, tokensTable)
 	err := r.db.Get(&token, query, username)
 
 	return token, err

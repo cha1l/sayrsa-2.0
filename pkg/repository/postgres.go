@@ -9,10 +9,13 @@ import (
 )
 
 const (
-	usersTable               = "users"
-	tokensTable              = "tokens"
-	conversationsTable       = "conversations"
-	conversationMembersTable = "conversation_members"
+	usersTable                = "users"
+	tokensTable               = "tokens"
+	conversationsTable        = "conversations"
+	conversationMembersTable  = "conversation_members"
+	messagesTable             = "messages"
+	conversationMessagesTable = "conversation_messages"
+	messageTextTable          = "message_text"
 )
 
 type Config struct {

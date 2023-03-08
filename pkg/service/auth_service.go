@@ -29,19 +29,19 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 	}
 }
 
-func (s *AuthService) CreateUser(u *models.User) (*string, error) {
+func (s *AuthService) CreateUser(u models.User) (string, error) {
 	u.Password = GeneratePasswordHash(u.Password)
 	token := GenerateSecureToken(tokenLength)
 	tokenT := time.Now().Add(tokenT)
 
-	return &token, s.repo.CreateUser(u, &token, tokenT)
+	return token, s.repo.CreateUser(u, token, tokenT)
 }
 
-func (s *AuthService) GetUsersToken(username string, password string) (*string, error) {
+func (s *AuthService) GetUsersToken(username string, password string) (string, error) {
 	password = GeneratePasswordHash(password)
 	token, err := s.repo.GetUsersToken(username, password)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if time.Now().After(token.ExpiresAt) {
 		log.Println("token is not valid: creating new token ...")
@@ -49,7 +49,7 @@ func (s *AuthService) GetUsersToken(username string, password string) (*string, 
 		token.ExpiresAt = time.Now().Add(tokenT)
 		err = s.repo.UpdateUsersToken(token)
 	}
-	return &token.Token, err
+	return token.Token, err
 }
 
 func (s *AuthService) GetUsernameByToken(token string) (string, error) {
@@ -61,7 +61,7 @@ func (s *AuthService) GetUsernameByToken(token string) (string, error) {
 		return "", errors.New("invalid token, register one more time")
 	}
 
-	return s.repo.GetUsernameByToken(cToken)
+	return cToken.UserUsername, nil
 
 }
 

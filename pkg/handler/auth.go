@@ -9,7 +9,7 @@ import (
 )
 
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
-	input := &models.User{}
+	var input models.User
 	w.Header().Set("Content-Type", "application/json")
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
