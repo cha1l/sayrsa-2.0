@@ -66,5 +66,15 @@ func (h *Handler) GetConversationInfoHandler(w http.ResponseWriter, r *http.Requ
 }
 
 func (h *Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
+	//convID, err := strconv.Atoi(mux.Vars(r)["convID"])
+	//if err != nil {
+	//	NewErrorResponse(w, http.StatusBadRequest, err.Error())
+	//	return
+	//}
+	//
+	//offset := r.FormValue("offset")
+	//amount := r.FormValue("amount")
+
+	//call service
 
 }

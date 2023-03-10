@@ -8,8 +8,8 @@ type MessageText struct {
 }
 
 type Message struct {
-	Sender         string            //`mapstructure:"from"`
-	ConversationID int               `mapstructure:"conversationID"`
-	SendDate       time.Time         //`mapstructure:"sendDate"`
+	Sender         string
+	ConversationID int `mapstructure:"conversationID"`
+	SendDate       time.Time
 	Text           map[string]string `mapstructure:"text"`
 }

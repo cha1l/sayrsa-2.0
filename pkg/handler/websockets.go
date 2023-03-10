@@ -51,7 +51,7 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 		var input StandardInput
 		err := conn.ReadJSON(&input)
 		if err != nil {
-			log.Printf("client %s disconnect", username)
+			log.Printf("client %s disconnected", username)
 			break
 		}
 

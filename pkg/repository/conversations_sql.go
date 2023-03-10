@@ -76,6 +76,16 @@ func (r *ConversationsRepo) CreateConversation(title string, members []string) (
 		return 0, err
 	}
 
+	senderUsername := members[len(members)-1]
+	msgQuery := fmt.Sprintf(`INSERT INTO %s (id_in_conv, sender_username, conv_id) VALUES ($1, $2, $3)`, messagesTable)
+	_, err = tx.Exec(msgQuery, 0, senderUsername, convID)
+	if err != nil {
+		if err0 := tx.Rollback(); err0 != nil {
+			return 0, err0
+		}
+		return 0, err
+	}
+
 	return convID, tx.Commit()
 }
 

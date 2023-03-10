@@ -26,6 +26,7 @@ CREATE TABLE conversation_members (
 
 CREATE TABLE messages (
     id serial primary key,
+    id_in_conv int,
     sender_username varchar(255) references users(username),
     conv_id int references conversations(id),
     send_date timestamp
