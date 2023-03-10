@@ -23,7 +23,6 @@ func (m *MessagesRepo) GetMessages(convID int, offset int, amount int) ([]models
 
 func (m *MessagesRepo) SendMessage(msg *models.Message) error {
 	var messageGlobalId int
-	var messageConvId int
 
 	tx, err := m.db.Beginx()
 	if err != nil {
@@ -40,22 +39,12 @@ func (m *MessagesRepo) SendMessage(msg *models.Message) error {
 		return err
 	}
 
-	conversationQuery := fmt.Sprintf(`INSERT INTO %s (conv_id, message_id) 
-		VALUES ($1, $2) RETURNING id`, conversationMessagesTable)
-	row = tx.QueryRowx(conversationQuery, msg.ConversationID, messageGlobalId)
-	if err := row.Scan(&messageConvId); err != nil {
-		if err0 := tx.Rollback(); err0 != nil {
-			return err0
-		}
-		return err
-	}
-
 	args := make([]interface{}, 0)
 	valueList := make([]string, 0)
 	cnt := 1
 
 	for key, element := range msg.Text {
-		args = append(args, messageConvId)
+		args = append(args, messageGlobalId)
 		args = append(args, element)
 		args = append(args, key)
 
@@ -66,7 +55,7 @@ func (m *MessagesRepo) SendMessage(msg *models.Message) error {
 
 	values := strings.Join(valueList, ", ")
 
-	textQuery := fmt.Sprintf(`INSERT INTO %s (conv_message_id, text, for_user) VALUES %s`, messageTextTable, values)
+	textQuery := fmt.Sprintf(`INSERT INTO %s (id, text, for_user) VALUES %s`, messageTextTable, values)
 	_, err = tx.Exec(textQuery, args...)
 	if err != nil {
 		if err0 := tx.Rollback(); err0 != nil {

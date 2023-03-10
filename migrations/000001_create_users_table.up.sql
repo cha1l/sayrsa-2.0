@@ -31,14 +31,8 @@ CREATE TABLE messages (
     send_date timestamp
 );
 
-CREATE TABLE conversation_messages (
-  id serial primary key,
-  conv_id int references conversations(id),
-  message_id int references messages(id)
-);
-
 CREATE TABLE message_text (
-  conv_message_id int references conversation_messages(id),
+  id int references messages(id),
   text varchar(5000) not null,
   for_user varchar(255) references users(username)
 );

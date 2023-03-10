@@ -64,3 +64,7 @@ func (h *Handler) GetConversationInfoHandler(w http.ResponseWriter, r *http.Requ
 
 	log.Printf("user %s got information about conversation with id %d", selfUser, id)
 }
+
+func (h *Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
+
+}
