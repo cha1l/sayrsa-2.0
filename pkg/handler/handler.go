@@ -49,8 +49,8 @@ func (h *Handler) InitRoutes() *mux.Router {
 	api.HandleFunc("/public-key/{username}", h.GetPublicKeyHandler).Methods(http.MethodGet)
 	api.HandleFunc("/conv_info/{id:[0-9]+}", h.GetConversationInfoHandler).Methods(http.MethodGet)
 	api.HandleFunc("/msg/{convID:[0-9]+}/", h.GetMessages).
-		Methods(http.MethodPost).
-		Queries("offset", "{offset}", "amount", "{amount}")
+		Queries("offset", "{offset}", "amount", "{amount}").
+		Methods(http.MethodGet)
 	//WebSockets handler
 	api.HandleFunc("/", h.wsHandler)
 

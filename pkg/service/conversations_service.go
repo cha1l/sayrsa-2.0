@@ -21,17 +21,15 @@ func NewConversationService(repo repository.Conversations) *ConversationService 
 	}
 }
 
-func (s *ConversationService) GetConversationInfo(convID int) (*models.Conversation, error) {
+func (s *ConversationService) GetConversationInfo(username string, convID int) (*models.Conversation, error) {
 	info, err := s.repo.GetConversationInfo(convID)
 	if err != nil {
 		return nil, err
 	}
-	return info, nil
+	return info, s.UpdateToken(username)
 }
 
 func (s *ConversationService) CreateConversation(username string, title string, members []string) (int, []models.PublicKey, error) {
-	members = append(members, username)
-
 	convID, err := s.repo.CreateConversation(title, members)
 	if err != nil {
 		return 0, nil, err

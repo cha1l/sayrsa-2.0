@@ -67,6 +67,7 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 
 			log.Printf("User %s wants to create a conversation with users %s", username, conv.Usernames)
 
+			conv.Usernames = append(conv.Usernames, username)
 			convID, publicKeys, err := h.service.Conversations.CreateConversation(username, conv.Title, conv.Usernames)
 			if err != nil {
 				WsErrorResponse(conn, err.Error())
@@ -84,7 +85,7 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 			go h.SendInfo(data, conv.Usernames...)
 
 		} else if input.Action == sendMessageAction {
-			var message models.Message
+			var message models.SendMessage
 
 			if err := mapstructure.Decode(input.Data, &message); err != nil {
 				WsErrorResponse(conn, err.Error())
@@ -97,7 +98,7 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			for key, value := range message.Text {
-				go func(message models.Message, text string, user string) {
+				go func(message models.SendMessage, text string, user string) {
 					log.Printf("User %s send message to user %s", username, user)
 					data := GenerateMessage(text, message)
 					h.SendInfo(data, user)
@@ -132,7 +133,7 @@ func (h *Handler) SendInfo(data map[string]interface{}, users ...string) {
 	log.Println("empty users list")
 }
 
-func GenerateMessage(text string, message models.Message) map[string]interface{} {
+func GenerateMessage(text string, message models.SendMessage) map[string]interface{} {
 	data := map[string]interface{}{
 		"event": "new_message",
 		"data": map[string]interface{}{

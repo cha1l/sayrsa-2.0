@@ -15,11 +15,12 @@ type Conversations interface {
 	CreateConversation(username string, title string, members []string) (int, []models.PublicKey, error)
 	UpdateToken(username string) error
 	GetPublicKey(username string) (string, error)
-	GetConversationInfo(convID int) (*models.Conversation, error)
+	GetConversationInfo(username string, convID int) (*models.Conversation, error)
 }
 
 type Messages interface {
-	SendMessage(username string, message *models.Message) error
+	SendMessage(username string, message *models.SendMessage) error
+	GetMessages(username string, convID int, offset int, amount int) ([]models.GetMessage, error)
 }
 
 type Service struct {
