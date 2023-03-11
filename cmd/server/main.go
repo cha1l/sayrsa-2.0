@@ -35,12 +35,12 @@ func main() {
 		log.Fatal("failed to launch db...")
 	}
 
-	repository := repository.New(db)
-	service := service.New(repository)
-	handler := handler.New(service)
+	repo := repository.New(db)
+	serv := service.New(repo)
+	hand := handler.New(serv)
 
 	apiserver := new(sayrsa20.APIServer)
-	if err := apiserver.StartServer(viper.GetString("port"), handler.InitRoutes()); err != nil {
+	if err := apiserver.StartServer(viper.GetString("port"), hand.InitRoutes()); err != nil {
 		log.Fatal(err)
 	}
 }

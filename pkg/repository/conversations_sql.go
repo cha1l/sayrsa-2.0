@@ -19,7 +19,7 @@ func NewConversationsRepo(db *sqlx.DB) *ConversationsRepo {
 func (r *ConversationsRepo) GetUsersPublicKeys(usernames ...string) ([]models.PublicKey, error) {
 	args := make([]interface{}, 0)
 	searchIndexes := make([]string, 0)
-	for i, _ := range usernames {
+	for i := range usernames {
 		args = append(args, usernames[i])
 		searchIndexes = append(searchIndexes, "$"+strconv.Itoa(i+1))
 	}

@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	salt        string        = "ojdflkghjfdlkj"
-	tokenLength int           = 64
-	tokenT      time.Duration = 7 * 24 * time.Hour
+	salt        string = "ojdflkghjfdlkj"
+	tokenLength int    = 64
+	tokenT             = 7 * 24 * time.Hour
 )
 
 type AuthService struct {

@@ -36,7 +36,7 @@ func TestGetPublicKeysQuery(t *testing.T) {
 
 func testQuery(usernames []string) string {
 	var searchIndexes []string
-	for i, _ := range usernames {
+	for i := range usernames {
 		searchIndexes = append(searchIndexes, "$"+strconv.Itoa(i+1))
 	}
 	indexes := strings.Join(searchIndexes, " OR username=")

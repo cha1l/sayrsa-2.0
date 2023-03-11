@@ -42,7 +42,7 @@ func testMessagesQuery(text map[string]string) string {
 	valueList := make([]string, 0)
 	cnt := 1
 
-	for _, _ = range text {
+	for range text {
 		object := fmt.Sprintf(`($%s, $%s, $%s)`, strconv.Itoa(cnt), strconv.Itoa(cnt+1), strconv.Itoa(cnt+2))
 		valueList = append(valueList, object)
 		cnt += 3
