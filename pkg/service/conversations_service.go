@@ -55,9 +55,12 @@ func (s *ConversationService) UpdateToken(username string) error {
 
 func (s *ConversationService) GetPublicKey(username string) (string, error) {
 	publicKeys, err := s.repo.GetUsersPublicKeys(username)
+	if err != nil {
+		return "", err
+	}
 	if len(publicKeys) == 1 {
 		publicKey := publicKeys[0]
-		return publicKey.PublicKey, err
+		return publicKey.PublicKey, s.UpdateToken(username)
 	}
 	return "", errors.New("wrong length of slice")
 }
