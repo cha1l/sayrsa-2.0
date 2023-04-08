@@ -7,13 +7,13 @@ type User struct {
 	Username   string `json:"username"`
 	Bio        string `json:"bio"`
 	Password   string `json:"password"`
-	PublicKey  string `json:"public key"`
+	PublicKey  string `json:"publicKey"`
 	LastOnline time.Time
 }
 
 type PublicKey struct {
 	Username  string `json:"username" db:"username"`
-	PublicKey string `json:"public_key" db:"public_key"`
+	PublicKey string `json:"publicKey" db:"public_key"`
 }
 
 func NewPublicKey(username string, publicKey string) PublicKey {

@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"encoding/json"
 	"github.com/gorilla/websocket"
+	"log"
 	"net/http"
 
 	"github.com/cha1l/sayrsa-2.0/pkg/service"
@@ -46,13 +48,34 @@ func (h *Handler) InitRoutes() *mux.Router {
 	//Main api handler
 	api := r.PathPrefix("/api").Subrouter()
 	api.Use(h.AuthorizationMiddleware)
-	api.HandleFunc("/public-key/{username}", h.GetPublicKeyHandler).Methods(http.MethodGet)
-	api.HandleFunc("/conv_info/{id:[0-9]+}", h.GetConversationInfoHandler).Methods(http.MethodGet)
+	api.HandleFunc("/public-key/{username}", h.GetPublicKeyHandler).Methods(http.MethodGet)        //todo : into ws
+	api.HandleFunc("/conv_info/{id:[0-9]+}", h.GetConversationInfoHandler).Methods(http.MethodGet) //todo : into ws
 	api.HandleFunc("/msg/{convID:[0-9]+}/", h.GetMessages).
 		Queries("offset", "{offset}", "amount", "{amount}").
-		Methods(http.MethodGet)
+		Methods(http.MethodGet) //todo : into ws
 	//WebSockets handler
 	api.HandleFunc("/", h.wsHandler)
 
+	//Test endpoint (home page endpoint in the future)
+	r.HandleFunc("/", h.TestEndpoint).Methods(http.MethodGet)
+
 	return r
+}
+
+func (h *Handler) TestEndpoint(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	log.Println("here")
+
+	body, err := json.Marshal(map[string]interface{}{
+		"status": "ok",
+	})
+	if err != nil {
+		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if _, err = w.Write(body); err != nil {
+		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 }

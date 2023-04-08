@@ -3,7 +3,7 @@ CREATE TABLE users (
     bio text,
     last_online timestamp,
     password_hash varchar(512) not null,
-    public_key varchar(256) not null unique
+    public_key varchar(512) not null unique
 );
 
 CREATE TABLE tokens (
