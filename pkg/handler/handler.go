@@ -11,8 +11,9 @@ import (
 )
 
 const (
-	createConversationAction = "create_conv"
-	sendMessageAction        = "send_message"
+	createConversationAction  = "create_conv"
+	sendMessageAction         = "send_message"
+	getAllConversationsAction = "get_all_user_conv"
 )
 
 type Handler struct {

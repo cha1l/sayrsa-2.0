@@ -21,6 +21,7 @@ type Conversations interface {
 	GetUserToken(username string) (models.Token, error)
 	UpdateUserToken(token models.Token) error
 	GetConversationInfo(convID int) (*models.Conversation, error)
+	GetAllConversations(username string) ([]*models.Conversation, error)
 }
 
 type Messages interface {

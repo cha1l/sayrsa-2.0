@@ -64,3 +64,10 @@ func (s *ConversationService) GetPublicKey(username string) (string, error) {
 	}
 	return "", errors.New("wrong length of slice")
 }
+
+func (s *ConversationService) GetAllConversations(username string) ([]*models.Conversation, error) {
+	if err := s.UpdateToken(username); err != nil {
+		return nil, err
+	}
+	return s.repo.GetAllConversations(username)
+}

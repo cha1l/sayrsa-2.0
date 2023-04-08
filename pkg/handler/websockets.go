@@ -106,6 +106,22 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 
 			}
 
+		} else if input.Action == getAllConversationsAction {
+			conversations, err := h.service.GetAllConversations(username)
+			if err != nil {
+				WsErrorResponse(conn, err.Error())
+				continue
+			}
+
+			data := map[string]interface{}{
+				"event": "all_conversations",
+				"data": map[string]interface{}{
+					"conversations": conversations,
+				},
+			}
+
+			go h.SendInfo(data, username)
+
 		} else {
 			WsErrorResponse(conn, "invalid action")
 			continue

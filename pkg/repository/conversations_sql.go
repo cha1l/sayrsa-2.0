@@ -135,5 +135,51 @@ func (r *ConversationsRepo) GetConversationInfo(convID int) (*models.Conversatio
 		publicKeys = append(publicKeys, publicKey)
 	}
 
-	return models.NewConversation(convID, title, publicKeys), nil
+	return models.NewConversation(convID, title, publicKeys...), nil
+}
+
+type SqlResultConversations struct {
+	Id        int    `db:"id"`
+	Title     string `db:"title"`
+	Username  string `db:"user_username"`
+	PublicKey string `db:"public_key"`
+	Ind       int    `db:"num"`
+}
+
+func (r *ConversationsRepo) GetAllConversations(username string) ([]*models.Conversation, error) {
+	query := fmt.Sprintf(`SELECT c.id, c.title, m.user_username, u.public_key, 
+			   ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY m.user_username) AS num
+		FROM %s AS c 
+		INNER JOIN %s AS m ON m.conv_id = c.id INNER JOIN %s AS u on u.username=m.user_username
+		WHERE c.id IN (
+			SELECT DISTINCT conv_id
+			FROM conversation_members
+			WHERE user_username = $1
+		)`, conversationsTable, conversationMembersTable, usersTable)
+
+	rows, err := r.db.Queryx(query, username)
+	if err != nil {
+		return nil, err
+	}
+
+	i := -1
+	previousValue := 2
+	conversations := make([]*models.Conversation, 0)
+
+	for rows.Next() {
+		var res SqlResultConversations
+		if err := rows.StructScan(&res); err != nil {
+			return nil, err
+		}
+		publicKey := models.NewPublicKey(res.Username, res.PublicKey)
+		if res.Ind < previousValue {
+			i++
+			conversations = append(conversations, models.NewConversation(res.Id, res.Title, publicKey)) //i index
+		} else {
+			conversations[i].Members = append(conversations[i].Members, publicKey)
+		}
+		previousValue = res.Ind
+	}
+
+	return conversations, nil
 }
