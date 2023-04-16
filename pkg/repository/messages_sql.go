@@ -24,8 +24,8 @@ type GetMessagesResult struct {
 	Text           string    `db:"text"`
 }
 
-func (m *MessagesRepo) GetMessages(username string, convID int, offset int, amount int) ([]models.GetMessage, error) {
-	messages := make([]models.GetMessage, amount)
+func (m *MessagesRepo) GetMessages(username string, convID int, offset int, amount int) ([]models.Message, error) {
+	messages := make([]models.Message, amount)
 
 	query := fmt.Sprintf(`SELECT m.sender_username, m.send_date, t.text FROM %s AS m INNER JOIN %s AS t
 	     ON t.id=m.id WHERE m.id_in_conv >= $1 AND m.id_in_conv < $2 AND m.conv_id=$3 AND t.for_user=$4`, messagesTable, messageTextTable)

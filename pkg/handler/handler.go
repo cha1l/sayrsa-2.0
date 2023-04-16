@@ -49,8 +49,7 @@ func (h *Handler) InitRoutes() *mux.Router {
 	//Main api handler
 	api := r.PathPrefix("/api").Subrouter()
 	api.Use(h.AuthorizationMiddleware)
-	api.HandleFunc("/public-key/{username}", h.GetPublicKeyHandler).Methods(http.MethodGet)        //todo : into ws
-	api.HandleFunc("/conv_info/{id:[0-9]+}", h.GetConversationInfoHandler).Methods(http.MethodGet) //todo : into ws
+	api.HandleFunc("/public-key/{username}", h.GetPublicKeyHandler).Methods(http.MethodGet) //todo : into ws
 	api.HandleFunc("/msg/{convID:[0-9]+}/", h.GetMessages).
 		Queries("offset", "{offset}", "amount", "{amount}").
 		Methods(http.MethodGet) //todo : into ws

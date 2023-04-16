@@ -78,6 +78,7 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 				"event": "new_conv",
 				"data": map[string]interface{}{
 					"conv_id":     convID,
+					"title":       conv.Title,
 					"public_keys": publicKeys,
 				},
 			}

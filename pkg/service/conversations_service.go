@@ -21,14 +21,6 @@ func NewConversationService(repo repository.Conversations) *ConversationService 
 	}
 }
 
-func (s *ConversationService) GetConversationInfo(username string, convID int) (*models.Conversation, error) {
-	info, err := s.repo.GetConversationInfo(convID)
-	if err != nil {
-		return nil, err
-	}
-	return info, s.UpdateToken(username)
-}
-
 func (s *ConversationService) CreateConversation(username string, title string, members []string) (int, []models.PublicKey, error) {
 	convID, err := s.repo.CreateConversation(title, members)
 	if err != nil {

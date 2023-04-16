@@ -20,12 +20,11 @@ type Conversations interface {
 	GetUsersPublicKeys(usernames ...string) ([]models.PublicKey, error)
 	GetUserToken(username string) (models.Token, error)
 	UpdateUserToken(token models.Token) error
-	GetConversationInfo(convID int) (*models.Conversation, error)
 	GetAllConversations(username string) ([]*models.Conversation, error)
 }
 
 type Messages interface {
-	GetMessages(username string, convID int, offset int, amount int) ([]models.GetMessage, error)
+	GetMessages(username string, convID int, offset int, amount int) ([]models.Message, error)
 	SendMessage(message *models.SendMessage) error
 }
 

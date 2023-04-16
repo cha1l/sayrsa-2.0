@@ -14,9 +14,13 @@ type SendMessage struct {
 	Text           map[string]string `mapstructure:"text"`
 }
 
-type GetMessage struct {
+type Message struct {
 	Sender         string    `json:"sender"`
 	ConversationID int       `json:"conversationID"`
 	SendDate       time.Time `json:"sendDate"`
 	Text           string    `json:"text"`
+}
+
+func NewMessage(sender string, conversationID int, sendDate time.Time, text string) Message {
+	return Message{Sender: sender, ConversationID: conversationID, SendDate: sendDate, Text: text}
 }
