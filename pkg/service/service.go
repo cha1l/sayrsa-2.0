@@ -20,7 +20,7 @@ type Conversations interface {
 
 type Messages interface {
 	SendMessage(username string, message *models.SendMessage) error
-	GetMessages(username string, convID int, offset int, amount int) ([]models.Message, error)
+	GetMessages(username string, convID int, offset int, amount int) (*[]models.Message, error)
 }
 
 type Service struct {

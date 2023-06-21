@@ -24,7 +24,7 @@ type Conversations interface {
 }
 
 type Messages interface {
-	GetMessages(username string, convID int, offset int, amount int) ([]models.Message, error)
+	GetMessages(username string, convID int, offset int, amount int) (*[]models.Message, error)
 	SendMessage(message *models.SendMessage) error
 }
 

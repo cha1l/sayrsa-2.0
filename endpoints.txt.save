@@ -1,0 +1,49 @@
+Результат получения всех бесед
+{
+    "data": {
+        "conversations": [
+            {
+                "conv_id": 1,
+                "title": "conv",
+                "members": [
+                    {
+                        "username": "test",
+                        "publicKey": "b"
+                    },
+                    {
+                        "username": "vbnm251",
+                        "publicKey": "a"
+                    }
+                ],
+                "lastMessage": {
+                    "sender": "vbnm251",
+                    "conversationID": 1,
+                    "sendDate": "2023-06-18T16:01:28.346423Z",
+                    "text": "heiiii"
+                }
+            }
+        ]
+    },
+    "event": "all_conversations"
+}
+
+Новая беседа
+{
+    "data": {
+        "conv_id": 1,
+        "public_keys": [
+            {
+                "username": "vbnm251",
+                "publicKey": "a"
+            },
+            {
+                "username": "test",
+                "publicKey": "b"
+            }
+        ],
+        "title": "conv"
+    },
+    "event": "new_conv"
+}
+
+

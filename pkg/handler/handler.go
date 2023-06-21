@@ -2,9 +2,10 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 
 	"github.com/cha1l/sayrsa-2.0/pkg/service"
 	"github.com/gorilla/mux"
@@ -49,10 +50,12 @@ func (h *Handler) InitRoutes() *mux.Router {
 	//Main api handler
 	api := r.PathPrefix("/api").Subrouter()
 	api.Use(h.AuthorizationMiddleware)
-	api.HandleFunc("/public-key/{username}", h.GetPublicKeyHandler).Methods(http.MethodGet) //todo : into ws
+	api.HandleFunc("/public-key/{username}", h.GetPublicKeyHandler).Methods(http.MethodGet)
 	api.HandleFunc("/msg/{convID:[0-9]+}/", h.GetMessages).
 		Queries("offset", "{offset}", "amount", "{amount}").
 		Methods(http.MethodGet) //todo : into ws
+	api.HandleFunc("/conv", h.GetAllConversations).Methods(http.MethodGet)
+
 	//WebSockets handler
 	api.HandleFunc("/", h.wsHandler)
 

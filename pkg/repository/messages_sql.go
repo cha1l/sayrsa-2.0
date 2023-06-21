@@ -2,11 +2,12 @@ package repository
 
 import (
 	"fmt"
-	"github.com/cha1l/sayrsa-2.0/models"
-	"github.com/jmoiron/sqlx"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/cha1l/sayrsa-2.0/models"
+	"github.com/jmoiron/sqlx"
 )
 
 type MessagesRepo struct {
@@ -18,36 +19,33 @@ func NewMessagesRepo(db *sqlx.DB) *MessagesRepo {
 }
 
 type GetMessagesResult struct {
+	IdInConv       int       `db:"id_in_conv"`
 	ConversationID int       `db:"conv_id"`
 	SenderUsername string    `db:"sender_username"`
 	SendDate       time.Time `db:"send_date"`
 	Text           string    `db:"text"`
 }
 
-func (m *MessagesRepo) GetMessages(username string, convID int, offset int, amount int) ([]models.Message, error) {
-	messages := make([]models.Message, amount)
+func (m *MessagesRepo) GetMessages(username string, convID int, offset int, amount int) (*[]models.Message, error) {
+	messages := make([]models.Message, 0)
 
-	query := fmt.Sprintf(`SELECT m.sender_username, m.send_date, t.text FROM %s AS m INNER JOIN %s AS t
-	     ON t.id=m.id WHERE m.id_in_conv >= $1 AND m.id_in_conv < $2 AND m.conv_id=$3 AND t.for_user=$4`, messagesTable, messageTextTable)
-	rows, err := m.db.Queryx(query, offset, amount+offset, convID, username)
+	query := fmt.Sprintf(`SELECT m.id_in_conv, m.sender_username, m.send_date, t.text FROM %s AS m INNER JOIN %s AS t
+	     ON t.id=m.id WHERE m.id_in_conv <= $1 AND m.id_in_conv > $2 AND m.conv_id=$3 AND t.for_user=$4`, messagesTable, messageTextTable)
+	rows, err := m.db.Queryx(query, offset, offset-amount, convID, username)
 	if err != nil {
 		return nil, err
 	}
 
-	i := 0
 	for rows.Next() {
 		var r GetMessagesResult
 		if err := rows.StructScan(&r); err != nil {
 			return nil, err
 		}
-		messages[i].ConversationID = convID
-		messages[i].SendDate = r.SendDate
-		messages[i].Sender = r.SenderUsername
-		messages[i].Text = r.Text
-		i++
+		message := models.NewMessage(r.IdInConv, r.SenderUsername, convID, r.SendDate, r.Text)
+		messages = append(messages, message)
 	}
 
-	return messages, nil
+	return &messages, nil
 }
 
 func (m *MessagesRepo) SendMessage(msg *models.SendMessage) error {

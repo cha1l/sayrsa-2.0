@@ -1,9 +1,10 @@
 package service
 
 import (
+	"time"
+
 	"github.com/cha1l/sayrsa-2.0/models"
 	"github.com/cha1l/sayrsa-2.0/pkg/repository"
-	"time"
 )
 
 type MessagesService struct {
@@ -20,6 +21,6 @@ func (m *MessagesService) SendMessage(username string, message *models.SendMessa
 	return m.repo.SendMessage(message)
 }
 
-func (m *MessagesService) GetMessages(username string, convID int, offset int, amount int) ([]models.Message, error) {
+func (m *MessagesService) GetMessages(username string, convID int, offset int, amount int) (*[]models.Message, error) {
 	return m.repo.GetMessages(username, convID, offset, amount)
 }

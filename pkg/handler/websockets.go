@@ -1,11 +1,12 @@
 package handler
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/cha1l/sayrsa-2.0/models"
 	"github.com/gorilla/websocket"
 	"github.com/mitchellh/mapstructure"
-	"log"
-	"net/http"
 )
 
 type CreateConversionsInput struct {
@@ -55,10 +56,10 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		if input.Action == createConversationAction {
+		switch input.Action {
+		case createConversationAction: //user wants to create conversation
 			var conv CreateConversionsInput
 
-			//algorithm???  data -> conv
 			err := mapstructure.Decode(input.Data, &conv)
 			if err != nil {
 				WsErrorResponse(conn, err.Error())
@@ -77,15 +78,15 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 			data := map[string]interface{}{
 				"event": "new_conv",
 				"data": map[string]interface{}{
-					"conv_id":     convID,
-					"title":       conv.Title,
-					"public_keys": publicKeys,
+					"conv_id": convID,
+					"title":   conv.Title,
+					"members": publicKeys,
 				},
 			}
 
 			go h.SendInfo(data, conv.Usernames...)
 
-		} else if input.Action == sendMessageAction {
+		case sendMessageAction: //user wants to send message
 			var message models.SendMessage
 
 			if err := mapstructure.Decode(input.Data, &message); err != nil {
@@ -107,23 +108,7 @@ func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
 
 			}
 
-		} else if input.Action == getAllConversationsAction {
-			conversations, err := h.service.GetAllConversations(username)
-			if err != nil {
-				WsErrorResponse(conn, err.Error())
-				continue
-			}
-
-			data := map[string]interface{}{
-				"event": "all_conversations",
-				"data": map[string]interface{}{
-					"conversations": conversations,
-				},
-			}
-
-			go h.SendInfo(data, username)
-
-		} else {
+		default:
 			WsErrorResponse(conn, "invalid action")
 			continue
 		}

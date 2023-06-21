@@ -15,12 +15,18 @@ type SendMessage struct {
 }
 
 type Message struct {
+	IdInConv       int       `json:"id"`
 	Sender         string    `json:"sender"`
 	ConversationID int       `json:"conversationID"`
 	SendDate       time.Time `json:"sendDate"`
 	Text           string    `json:"text"`
 }
 
-func NewMessage(sender string, conversationID int, sendDate time.Time, text string) Message {
-	return Message{Sender: sender, ConversationID: conversationID, SendDate: sendDate, Text: text}
+func NewMessage(id int, sender string, conversationID int, sendDate time.Time, text string) Message {
+	return Message{
+		IdInConv:       id,
+		Sender:         sender,
+		ConversationID: conversationID,
+		SendDate:       sendDate, Text: text,
+	}
 }

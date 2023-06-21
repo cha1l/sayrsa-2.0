@@ -10,4 +10,8 @@ migrateup:
 migratedown:
 	migrate -path migrations/ -database 'postgres://vbnm251:vbnm251@localhost:5432/sayrsa?sslmode=disable' down
 
-.DEFAULT_GOAL := build
+launch:
+	make build
+	./server
+
+.DEFAULT_GOAL := launch

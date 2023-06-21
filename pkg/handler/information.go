@@ -2,10 +2,11 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 func (h *Handler) GetPublicKeyHandler(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +70,35 @@ func (h *Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 
 	_, err = w.Write(ans)
 	if err != nil {
+		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+}
+
+func (h *Handler) GetAllConversations(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	username := GetParams(r.Context())
+
+	conversations, err := h.service.GetAllConversations(username)
+	if err != nil {
+		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	data := map[string]interface{}{
+		"event": "all_conversations",
+		"data": map[string]interface{}{
+			"conversations": conversations,
+		},
+	}
+
+	resp, err := json.Marshal(data)
+	if err != nil {
+		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if _, err := w.Write(resp); err != nil {
 		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}

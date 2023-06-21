@@ -1,0 +1,10 @@
+start : "localhost"
+
+port : "8080"
+
+db:
+  host: "localhost"
+  user: "vbnm251"
+  password: "vbnm251"
+  name: "sayrsa"
+  sslmode : "disable"

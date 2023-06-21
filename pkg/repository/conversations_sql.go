@@ -2,11 +2,12 @@ package repository
 
 import (
 	"fmt"
-	"github.com/cha1l/sayrsa-2.0/models"
-	"github.com/jmoiron/sqlx"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/cha1l/sayrsa-2.0/models"
+	"github.com/jmoiron/sqlx"
 )
 
 type ConversationsRepo struct {
@@ -117,6 +118,7 @@ type SqlResultConversations struct {
 	Title     string    `db:"title"`
 	Username  string    `db:"user_username"`
 	PublicKey string    `db:"public_key"`
+	IdInConv  int       `db:"id_in_conv"`
 	Sender    string    `db:"sender"`
 	SendDate  time.Time `db:"send_date"`
 	Text      string    `db:"text"`
@@ -124,11 +126,11 @@ type SqlResultConversations struct {
 }
 
 func (r *ConversationsRepo) GetAllConversations(username string) ([]*models.Conversation, error) {
-	query := fmt.Sprintf(`SELECT c.id, c.title, m.user_username, u.public_key, msg.sender, msg.send_date, text.text,
+	query := fmt.Sprintf(`SELECT c.id, c.title, m.user_username, u.public_key, msg.id_in_conv, msg.sender, msg.send_date, text.text,
 				ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY m.user_username) AS num
                 FROM %s AS c
                 INNER JOIN %s AS m ON m.conv_id = c.id INNER JOIN %s AS u on u.username=m.user_username
-                INNER JOIN (SELECT id, conv_id, sender_username AS sender, send_date, rank() OVER 
+                INNER JOIN (SELECT id, id_in_conv, conv_id, sender_username AS sender, send_date, rank() OVER 
                     (PARTITION BY conv_id  ORDER BY id_in_conv DESC) RnkDESK FROM %s ) msg ON msg.conv_id=c.id
                 INNER JOIN %s AS text on text.id=msg.id
                 WHERE c.id IN (
@@ -154,7 +156,7 @@ func (r *ConversationsRepo) GetAllConversations(username string) ([]*models.Conv
 		publicKey := models.NewPublicKey(res.Username, res.PublicKey)
 		if res.Ind < previousValue {
 			i++
-			msg := models.NewMessage(res.Sender, res.Ind, res.SendDate, res.Text)
+			msg := models.NewMessage(res.IdInConv, res.Sender, res.Ind, res.SendDate, res.Text)
 			conversations = append(conversations, models.NewConversation(res.Id, res.Title, msg, publicKey)) //i index
 		} else {
 			conversations[i].Members = append(conversations[i].Members, publicKey)
