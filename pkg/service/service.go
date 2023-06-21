@@ -7,7 +7,7 @@ import (
 
 type Authorization interface {
 	CreateUser(u models.User) (string, error)
-	GetUsersToken(username string, password string) (string, error)
+	GetUserTokenPrivateKey(username, password string) (string, string, error)
 	GetUsernameByToken(token string) (string, error)
 }
 

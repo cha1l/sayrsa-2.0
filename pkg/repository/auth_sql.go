@@ -49,14 +49,26 @@ func (s *AuthRepo) CreateUser(u models.User, token string, tokenT time.Time) (in
 	return id, tx, nil
 }
 
-func (s *AuthRepo) GetUsersToken(username string, password string) (models.Token, error) {
-	var token models.Token
+type GetUserTokenPrivateKeyResut struct {
+	Id           int       `db:"id"`
+	Token        string    `db:"token"`
+	ExpiresAt    time.Time `db:"expires_at"`
+	UserUsername string    `db:"user_username"`
+	PrivateKey   string    `db:"private_key"`
+}
 
-	query := fmt.Sprintf(`SELECT * FROM %s WHERE user_username=(SELECT username FROM %s WHERE username=$1 AND password_hash=$2)`,
+func (s *AuthRepo) GetUserTokenPrivateKey(username string, password string) (models.Token, string, error) {
+	var res GetUserTokenPrivateKeyResut
+
+	query := fmt.Sprintf(`SELECT t.*, u.private_key FROM %s AS t LEFT JOIN %s AS u 
+	ON u.username=t.user_username AND u.username=$1 AND u.password_hash=$2`,
 		tokensTable, usersTable)
 
-	err := s.db.Get(&token, query, username, password)
-	return token, err
+	err := s.db.Get(&res, query, username, password)
+
+	token := models.NewToken(res.Id, res.Token, res.UserUsername, res.ExpiresAt)
+
+	return token, res.PrivateKey, err
 }
 
 func (s *AuthRepo) UpdateUsersToken(token models.Token) error {

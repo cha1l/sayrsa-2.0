@@ -56,14 +56,15 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.service.Authorization.GetUsersToken(input.Username, input.Password)
+	token, privateKey, err := h.service.Authorization.GetUserTokenPrivateKey(input.Username, input.Password)
 	if err != nil {
 		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	ans, err := json.Marshal(map[string]interface{}{
-		"token": token,
+		"token":      token,
+		"privateKey": privateKey,
 	})
 	if err != nil {
 		NewErrorResponse(w, http.StatusInternalServerError, err.Error())

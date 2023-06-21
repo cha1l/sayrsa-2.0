@@ -9,7 +9,7 @@ import (
 
 type Authorization interface {
 	CreateUser(u models.User, token string, tokenT time.Time) (int, *sqlx.Tx, error)
-	GetUsersToken(username string, password string) (models.Token, error)
+	GetUserTokenPrivateKey(username string, password string) (models.Token, string, error)
 	UpdateUsersToken(token models.Token) error
 	GetToken(token string) (models.Token, error)
 	SetUserPrivateKey(userID int, key string, tx *sqlx.Tx) error

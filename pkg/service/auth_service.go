@@ -57,19 +57,25 @@ func (s *AuthService) CreateUser(u models.User) (string, error) {
 	return token, err
 }
 
-func (s *AuthService) GetUsersToken(username string, password string) (string, error) {
+func (s *AuthService) GetUserTokenPrivateKey(username, password string) (string, string, error) {
 	password = GeneratePasswordHash(password)
-	token, err := s.repo.GetUsersToken(username, password)
+	token, decoded, err := s.repo.GetUserTokenPrivateKey(username, password)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
+
+	privateKey, err := DecodePrivateKey(decoded)
+	if err != nil {
+		return "", "", err
+	}
+
 	if time.Now().After(token.ExpiresAt) {
 		log.Println("token is not valid: creating new token ...")
 		token.Token = GenerateSecureToken(tokenLength)
 		token.ExpiresAt = time.Now().Add(tokenT)
 		err = s.repo.UpdateUsersToken(token)
 	}
-	return token.Token, err
+	return token.Token, privateKey, err
 }
 
 func (s *AuthService) GetUsernameByToken(token string) (string, error) {
@@ -95,8 +101,6 @@ func EncodePrivateKey(privateKey string, userID int) string {
 
 func DecodePrivateKey(encoded string) (string, error) {
 	data, err := base64.StdEncoding.DecodeString(encoded)
-
-	fmt.Printf("%q\n", data)
 
 	if err != nil {
 		return "", err
