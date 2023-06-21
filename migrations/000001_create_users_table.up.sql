@@ -1,9 +1,11 @@
 CREATE TABLE users (
+    id serial,
     username varchar(255) not null unique primary key ,
     bio text,
     last_online timestamp,
     password_hash varchar(512) not null,
-    public_key varchar(512) not null unique
+    public_key varchar(512) not null unique,
+    private_key varchar(512) unique
 );
 
 CREATE TABLE tokens (

@@ -1,12 +1,16 @@
 package service
 
 import (
+	"bytes"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/cha1l/sayrsa-2.0/models"
@@ -30,11 +34,27 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 }
 
 func (s *AuthService) CreateUser(u models.User) (string, error) {
+	if u.PrivateKey == "" {
+		return "", errors.New("empty private key")
+	}
+
 	u.Password = GeneratePasswordHash(u.Password)
 	token := GenerateSecureToken(tokenLength)
 	tokenT := time.Now().Add(tokenT)
 
-	return token, s.repo.CreateUser(u, token, tokenT)
+	id, tx, err := s.repo.CreateUser(u, token, tokenT)
+	fmt.Println("id is ", id)
+	if err != nil {
+		return "", err
+	}
+
+	privateKey := EncodePrivateKey(u.PrivateKey, id)
+
+	if err := s.repo.SetUserPrivateKey(id, privateKey, tx); err != nil {
+		return "", err
+	}
+
+	return token, err
 }
 
 func (s *AuthService) GetUsersToken(username string, password string) (string, error) {
@@ -63,6 +83,28 @@ func (s *AuthService) GetUsernameByToken(token string) (string, error) {
 
 	return cToken.UserUsername, nil
 
+}
+
+func EncodePrivateKey(privateKey string, userID int) string {
+	userIDstr := strconv.Itoa(userID)
+
+	toEncode := []byte(strings.Join([]string{privateKey, userIDstr, salt}, " "))
+
+	return base64.StdEncoding.EncodeToString(toEncode)
+}
+
+func DecodePrivateKey(encoded string) (string, error) {
+	data, err := base64.StdEncoding.DecodeString(encoded)
+
+	fmt.Printf("%q\n", data)
+
+	if err != nil {
+		return "", err
+	}
+
+	privateKey := bytes.Split(data, []byte(" "))[0]
+
+	return string(privateKey), nil
 }
 
 func GenerateSecureToken(length int) string {

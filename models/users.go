@@ -8,6 +8,7 @@ type User struct {
 	Bio        string `json:"bio"`
 	Password   string `json:"password"`
 	PublicKey  string `json:"publicKey"`
+	PrivateKey string `json:"privateKey"`
 	LastOnline time.Time
 }
 

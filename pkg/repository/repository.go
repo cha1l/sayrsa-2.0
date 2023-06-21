@@ -8,11 +8,11 @@ import (
 )
 
 type Authorization interface {
-	CreateUser(u models.User, token string, tokenT time.Time) error
+	CreateUser(u models.User, token string, tokenT time.Time) (int, *sqlx.Tx, error)
 	GetUsersToken(username string, password string) (models.Token, error)
 	UpdateUsersToken(token models.Token) error
 	GetToken(token string) (models.Token, error)
-	//GetUsernameByToken(token models.Token) (string, error)
+	SetUserPrivateKey(userID int, key string, tx *sqlx.Tx) error
 }
 
 type Conversations interface {
