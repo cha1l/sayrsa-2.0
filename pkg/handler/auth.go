@@ -10,7 +10,6 @@ import (
 
 func (h *Handler) SignUp(w http.ResponseWriter, r *http.Request) {
 	var input models.User
-	w.Header().Set("Content-Type", "application/json")
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -49,7 +48,6 @@ type SignInInput struct {
 
 func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 	var input SignInInput
-	w.Header().Set("Content-Type", "application/json")
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		NewErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -58,7 +56,7 @@ func (h *Handler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	token, privateKey, err := h.service.Authorization.GetUserTokenPrivateKey(input.Username, input.Password)
 	if err != nil {
-		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
+		NewErrorResponse(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 

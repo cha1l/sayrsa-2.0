@@ -25,6 +25,11 @@ func (h *Handler) GetPublicKeyHandler(w http.ResponseWriter, r *http.Request) {
 	ans, err := json.Marshal(map[string]interface{}{
 		"public_key": publicKey,
 	})
+	if err != nil {
+		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	_, err = w.Write(ans)
 	if err != nil {
 		NewErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -76,7 +81,7 @@ func (h *Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetAllConversations(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+
 	username := GetParams(r.Context())
 
 	conversations, err := h.service.GetAllConversations(username)

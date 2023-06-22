@@ -60,7 +60,7 @@ type GetUserTokenPrivateKeyResut struct {
 func (s *AuthRepo) GetUserTokenPrivateKey(username string, password string) (models.Token, string, error) {
 	var res GetUserTokenPrivateKeyResut
 
-	query := fmt.Sprintf(`SELECT t.*, u.private_key FROM %s AS t LEFT JOIN %s AS u 
+	query := fmt.Sprintf(`SELECT t.*, u.private_key FROM %s AS t INNER JOIN %s AS u 
 	ON u.username=t.user_username AND u.username=$1 AND u.password_hash=$2`,
 		tokensTable, usersTable)
 

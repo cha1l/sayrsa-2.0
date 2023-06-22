@@ -41,11 +41,12 @@ func NewClient(conn *websocket.Conn) Client {
 
 func (h *Handler) InitRoutes() *mux.Router {
 	r := mux.NewRouter()
+	r.Use(h.CorsMiddleware)
 
 	//Authorization
 	auth := r.PathPrefix("/auth").Subrouter()
-	auth.HandleFunc("/sign-up", h.SignUp).Methods(http.MethodPost)
-	auth.HandleFunc("/sign-in", h.SignIn).Methods(http.MethodPost)
+	auth.HandleFunc("/sign-up", h.SignUp).Methods(http.MethodPost, http.MethodOptions)
+	auth.HandleFunc("/sign-in", h.SignIn).Methods(http.MethodPost, http.MethodOptions)
 
 	//Main api handler
 	api := r.PathPrefix("/api").Subrouter()
@@ -66,7 +67,7 @@ func (h *Handler) InitRoutes() *mux.Router {
 }
 
 func (h *Handler) TestEndpoint(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+
 	log.Println("here")
 
 	body, err := json.Marshal(map[string]interface{}{

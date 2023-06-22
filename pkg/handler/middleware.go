@@ -6,6 +6,24 @@ import (
 	"strings"
 )
 
+func (h *Handler) CorsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
+		w.Header().Set("Content-Type", "application/json")
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+type usernameKey struct{}
+
 func (h *Handler) AuthorizationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		reqToken := r.Header.Get("Authorization")
@@ -27,7 +45,7 @@ func (h *Handler) AuthorizationMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		rcopy := r.WithContext(context.WithValue(r.Context(), "username", username))
+		rcopy := r.WithContext(context.WithValue(r.Context(), usernameKey{}, username))
 
 		next.ServeHTTP(w, rcopy)
 	})
@@ -38,7 +56,7 @@ func GetParams(ctx context.Context) string {
 		return ""
 	}
 
-	username, ok := ctx.Value("username").(string)
+	username, ok := ctx.Value(usernameKey{}).(string)
 	if ok {
 		return username
 	}
