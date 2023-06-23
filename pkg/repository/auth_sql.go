@@ -18,22 +18,20 @@ func NewAuthRepo(db *sqlx.DB) *AuthRepo {
 	}
 }
 
-func (s *AuthRepo) CreateUser(u models.User, token string, tokenT time.Time) (int, *sqlx.Tx, error) {
-	var id int
-
+func (s *AuthRepo) CreateUser(u models.User, token string, tokenT time.Time) error {
 	tx, err := s.db.Beginx()
 	if err != nil {
-		return 0, nil, err
+		return err
 	}
 
-	createUserQuery := fmt.Sprintf(`INSERT INTO %s (username, bio, last_online, password_hash, public_key) 
-	VALUES ($1, $2, $3, $4, $5) RETURNING id`, usersTable)
-	row := tx.QueryRowx(createUserQuery, u.Username, u.Bio, u.LastOnline, u.Password, u.PublicKey)
-	if err := row.Scan(&id); err != nil {
+	createUserQuery := fmt.Sprintf(`INSERT INTO %s (username, bio, last_online, password_hash, public_key, private_key) 
+	VALUES ($1, $2, $3, $4, $5, $6)`, usersTable)
+	_, err = tx.Exec(createUserQuery, u.Username, u.Bio, u.LastOnline, u.Password, u.PublicKey, u.PrivateKey)
+	if err != nil {
 		if err0 := tx.Rollback(); err0 != nil {
-			return 0, nil, err0
+			return err0
 		}
-		return 0, nil, err
+		return err
 	}
 
 	createTokenQuery := fmt.Sprintf(`INSERT INTO %s (user_username, token, expires_at) VALUES ($1, $2, $3)`, tokensTable)
@@ -41,12 +39,12 @@ func (s *AuthRepo) CreateUser(u models.User, token string, tokenT time.Time) (in
 	if err != nil {
 		err0 := tx.Rollback()
 		if err0 != nil {
-			return 0, nil, err0
+			return err0
 		}
-		return 0, nil, err
+		return err
 	}
 
-	return id, tx, nil
+	return tx.Commit()
 }
 
 type GetUserTokenPrivateKeyResut struct {

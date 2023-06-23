@@ -5,7 +5,7 @@ CREATE TABLE users (
     last_online timestamp,
     password_hash varchar(512) not null,
     public_key varchar(512) not null unique,
-    private_key varchar(512) unique
+    private_key varchar(512) not null unique
 );
 
 CREATE TABLE tokens (
