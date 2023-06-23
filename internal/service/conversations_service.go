@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/cha1l/sayrsa-2.0/internal/repository"
 	"github.com/cha1l/sayrsa-2.0/models"
-	"github.com/cha1l/sayrsa-2.0/pkg/repository"
 )
 
 const (

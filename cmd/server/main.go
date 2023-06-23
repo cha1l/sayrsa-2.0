@@ -1,13 +1,14 @@
 package main
 
 import (
-	sayrsa20 "github.com/cha1l/sayrsa-2.0"
-	"github.com/cha1l/sayrsa-2.0/pkg/handler"
-	"github.com/cha1l/sayrsa-2.0/pkg/repository"
-	"github.com/cha1l/sayrsa-2.0/pkg/service"
-	"github.com/spf13/viper"
 	"log"
 	"os"
+
+	sayrsa20 "github.com/cha1l/sayrsa-2.0"
+	"github.com/cha1l/sayrsa-2.0/internal/handler"
+	"github.com/cha1l/sayrsa-2.0/internal/repository"
+	"github.com/cha1l/sayrsa-2.0/internal/service"
+	"github.com/spf13/viper"
 )
 
 func main() {

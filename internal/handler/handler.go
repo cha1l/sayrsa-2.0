@@ -7,7 +7,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/cha1l/sayrsa-2.0/pkg/service"
+	"github.com/cha1l/sayrsa-2.0/internal/service"
 	"github.com/gorilla/mux"
 )
 

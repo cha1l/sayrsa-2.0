@@ -1,6 +1,14 @@
+# Ignore all
+*
+
+# Unignore all with extensions
+!*.*
+
+# Unignore all dirs
+!*/
+
+# Directory with configs
 config
-server
 
 Makefile
 
-endpoints.txt

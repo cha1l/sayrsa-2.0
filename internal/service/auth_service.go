@@ -5,8 +5,9 @@ import (
 	"log"
 	"time"
 
+	"github.com/cha1l/sayrsa-2.0/internal/repository"
 	"github.com/cha1l/sayrsa-2.0/models"
-	"github.com/cha1l/sayrsa-2.0/pkg/repository"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -30,7 +31,12 @@ func (s *AuthService) CreateUser(u models.User) (string, error) {
 		return "", errors.New("empty private key")
 	}
 
-	u.Password = GeneratePasswordHash(u.Password)
+	hashedPassword, err := GeneratePasswordHash(u.Password)
+	if err != nil {
+		return "", err
+	}
+
+	u.Password = hashedPassword
 	u.PrivateKey = EncryptPrivateKey(u.PrivateKey, u.Password)
 	token := GenerateSecureToken(tokenLength)
 	tokenTime := time.Now().Add(tokenT)
@@ -43,13 +49,15 @@ func (s *AuthService) CreateUser(u models.User) (string, error) {
 }
 
 func (s *AuthService) GetUserTokenPrivateKey(username, password string) (string, string, error) {
-	password = GeneratePasswordHash(password)
-	token, encoded, err := s.repo.GetUserTokenPrivateKey(username, password)
+	token, encoded, password_hash, err := s.repo.GetUserTokenPrivateKey(username)
 	if err != nil {
 		return "", "", err
 	}
+	if err := bcrypt.CompareHashAndPassword([]byte(password_hash), []byte(password)); err != nil {
+		return "", "", err
+	}
 
-	privateKey := DecryptPrivateKey(encoded, password)
+	privateKey := DecryptPrivateKey(encoded, password_hash)
 
 	if time.Now().After(token.ExpiresAt) {
 		log.Println("token is not valid: creating new token ...")

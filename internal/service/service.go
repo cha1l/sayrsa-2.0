@@ -1,8 +1,8 @@
 package service
 
 import (
+	"github.com/cha1l/sayrsa-2.0/internal/repository"
 	"github.com/cha1l/sayrsa-2.0/models"
-	"github.com/cha1l/sayrsa-2.0/pkg/repository"
 )
 
 type Authorization interface {
