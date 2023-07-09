@@ -91,10 +91,7 @@ func (h *Handler) GetAllConversations(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]interface{}{
-		"event": "all_conversations",
-		"data": map[string]interface{}{
-			"conversations": conversations,
-		},
+		"conversations": conversations,
 	}
 
 	resp, err := json.Marshal(data)

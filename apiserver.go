@@ -19,7 +19,7 @@ func (s *APIServer) StartServer(handler http.Handler, ip string, port string) er
 		MaxHeaderBytes: 1 << 20, //1mb
 	}
 
-	log.Println("Server starting...")
+	log.Println("Server starting on", port)
 
 	return s.httpServer.ListenAndServe()
 }

@@ -23,7 +23,10 @@ var upgrade = websocket.Upgrader{
 }
 
 func (h *Handler) wsHandler(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrade.Upgrade(w, r, nil)
+	header := http.Header{}
+	header.Add("Sec-WebSocket-Protocol", "access_token")
+
+	conn, err := upgrade.Upgrade(w, r, header)
 	if err != nil {
 		WsErrorResponse(conn, err.Error())
 		return

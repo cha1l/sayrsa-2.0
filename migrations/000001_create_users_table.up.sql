@@ -3,9 +3,9 @@ CREATE TABLE users (
     username varchar(255) not null unique primary key ,
     bio text,
     last_online timestamp,
-    password_hash varchar(512) not null,
-    public_key varchar(512) not null unique,
-    private_key varchar(512) not null unique
+    password_hash varchar(1023) not null,
+    public_key varchar(1023) not null unique,
+    private_key varchar(1023) not null unique
 );
 
 CREATE TABLE tokens (

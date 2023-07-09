@@ -51,16 +51,18 @@ func (h *Handler) InitRoutes() *mux.Router {
 	//Main api handler
 	api := r.PathPrefix("/api").Subrouter()
 	api.Use(h.AuthorizationMiddleware)
-	api.HandleFunc("/public-key/{username}", h.GetPublicKeyHandler).Methods(http.MethodGet)
-	api.HandleFunc("/msg/{convID:[0-9]+}/", h.GetMessages).
+	api.HandleFunc("/public-key/{username}", h.GetPublicKeyHandler).Methods(http.MethodGet, http.MethodOptions)
+	api.HandleFunc("/msg/{convID:[0-9]+}", h.GetMessages).
 		Queries("offset", "{offset}", "amount", "{amount}").
-		Methods(http.MethodGet) //todo : into ws
-	api.HandleFunc("/conv", h.GetAllConversations).Methods(http.MethodGet)
+		Methods(http.MethodGet, http.MethodOptions)
+	api.HandleFunc("/conv", h.GetAllConversations).Methods(http.MethodGet, http.MethodOptions)
 
 	//WebSockets handler
-	api.HandleFunc("/", h.wsHandler)
+	ws := r.PathPrefix("/ws").Subrouter()
+	ws.Use(h.WebSocketsAuthorizationMiddleware)
+	ws.HandleFunc("/", h.wsHandler)
 
-	//Test endpoint (home page endpoint in the future)
+	//Test endpoint
 	r.HandleFunc("/", h.TestEndpoint).Methods(http.MethodGet)
 
 	return r

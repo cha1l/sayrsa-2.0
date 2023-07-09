@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 )
@@ -10,7 +11,7 @@ func (h *Handler) CorsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
+		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization")
 		w.Header().Set("Content-Type", "application/json")
 
 		if r.Method == http.MethodOptions {
@@ -40,6 +41,34 @@ func (h *Handler) AuthorizationMiddleware(next http.Handler) http.Handler {
 
 		reqToken = splitToken[1]
 		username, err := h.service.Authorization.GetUsernameByToken(reqToken)
+		if err != nil {
+			NewErrorResponse(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+
+		rcopy := r.WithContext(context.WithValue(r.Context(), usernameKey{}, username))
+
+		next.ServeHTTP(w, rcopy)
+	})
+}
+
+func (h *Handler) WebSocketsAuthorizationMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		protocol := r.Header.Get("Sec-WebSocket-Protocol")
+		if protocol == "" {
+			NewErrorResponse(w, http.StatusUnauthorized, "empty auth header")
+			return
+		}
+
+		fmt.Println("protocol is ", protocol)
+
+		splitProtocol := strings.Split(protocol, ", ")
+		reqToken := splitProtocol[1]
+
+		username, err := h.service.Authorization.GetUsernameByToken(reqToken)
+
+		fmt.Println(username)
+
 		if err != nil {
 			NewErrorResponse(w, http.StatusUnauthorized, err.Error())
 			return

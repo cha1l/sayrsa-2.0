@@ -1,14 +1,4 @@
-# Ignore all
-*
-
-# Unignore all with extensions
-!*.*
-
-# Unignore all dirs
-!*/
-
-# Directory with configs
-config
+config.yml
 
 Makefile
 
