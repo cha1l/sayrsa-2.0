@@ -19,11 +19,11 @@ func NewMessagesRepo(db *sqlx.DB) *MessagesRepo {
 }
 
 type GetMessagesResult struct {
-	IdInConv       int       `db:"id_in_conv"`
-	ConversationID int       `db:"conv_id"`
-	SenderUsername string    `db:"sender_username"`
-	SendDate       time.Time `db:"send_date"`
-	Text           string    `db:"text"`
+	IdInConv       int        `db:"id_in_conv"`
+	ConversationID int        `db:"conv_id"`
+	SenderUsername string     `db:"sender_username"`
+	SendDate       *time.Time `db:"send_date"`
+	Text           *string    `db:"text"`
 }
 
 func (m *MessagesRepo) GetMessages(username string, convID int, offset int, amount int) (*[]models.Message, error) {

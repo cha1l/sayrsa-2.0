@@ -114,15 +114,15 @@ type SqlResultConv struct {
 }
 
 type SqlResultConversations struct {
-	Id        int       `db:"id"`
-	Title     string    `db:"title"`
-	Username  string    `db:"user_username"`
-	PublicKey string    `db:"public_key"`
-	IdInConv  int       `db:"id_in_conv"`
-	Sender    string    `db:"sender"`
-	SendDate  time.Time `db:"send_date"`
-	Text      string    `db:"text"`
-	Ind       int       `db:"num"`
+	Id        int        `db:"id"`
+	Title     string     `db:"title"`
+	Username  string     `db:"user_username"`
+	PublicKey string     `db:"public_key"`
+	IdInConv  int        `db:"id_in_conv"`
+	Sender    string     `db:"sender"`
+	SendDate  *time.Time `db:"send_date"`
+	Text      *string    `db:"text"`
+	Ind       int        `db:"num"`
 }
 
 func (r *ConversationsRepo) GetAllConversations(username string) ([]*models.Conversation, error) {
@@ -130,14 +130,15 @@ func (r *ConversationsRepo) GetAllConversations(username string) ([]*models.Conv
 				ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY m.user_username) AS num
                 FROM %s AS c
                 INNER JOIN %s AS m ON m.conv_id = c.id INNER JOIN %s AS u on u.username=m.user_username
-                INNER JOIN (SELECT id, id_in_conv, conv_id, sender_username AS sender, send_date, rank() OVER 
+                LEFT JOIN (SELECT id, id_in_conv, conv_id, sender_username AS sender, send_date, rank() OVER 
                     (PARTITION BY conv_id  ORDER BY id_in_conv DESC) RnkDESK FROM %s ) msg ON msg.conv_id=c.id
-                INNER JOIN %s AS text on text.id=msg.id
+                LEFT JOIN %s AS text on text.id=msg.id
                 WHERE c.id IN (
                         SELECT DISTINCT conv_id
                         FROM conversation_members
                         WHERE user_username = $1
-                ) AND text.for_user=$2 AND msg.RnkDESK=1`, conversationsTable, conversationMembersTable, usersTable, messagesTable, messageTextTable)
+                ) AND (text.for_user=$2 OR text.for_user IS NULL )
+				AND (msg.RnkDESK=1 OR msg.RnkDESK IS NULL)`, conversationsTable, conversationMembersTable, usersTable, messagesTable, messageTextTable)
 
 	rows, err := r.db.Queryx(query, username, username)
 	if err != nil {
